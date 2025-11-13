@@ -258,7 +258,28 @@ Most robots will work out of the box with `GenericTeleoperation`.
 If your robot has:
 - fewer than 6 controllable DOF  
 - extra joints  
-- non-standard
+- non-standard motion  
+- hybrid control needs  
+
+then create a custom teleop file (e.g., `myrobot_teleoperation.py`) similar to:
+- `genericteleoperation.py`
+- `so100teleoperation.py`
+
+and register it in the launcher (`gamepad_control.py`).
+
+### 7. Tune movement scales
+Robots differ in size, speed, and kinematics. Adjust the values in your robot’s config:
+- translation speed
+- rotation speed
+- tilt
+- deadzone
+- gripper scaling
+
+This ensures smooth and intuitive teleoperation.
+
+---
+
+Once these steps are completed, your robot will be fully usable in the teleoperation framework through both direct and interactive launch methods.
 
 
 

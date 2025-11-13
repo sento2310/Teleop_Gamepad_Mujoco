@@ -203,7 +203,7 @@ Edit `config.py` and add your robot definition to `ROBOT_CONFIGS`:
         'vx': 'vx', 'vy': 'vy', 'vz': 'vz',
         'roll': 'roll', 'pitch': 'pitch', 'yaw': 'yaw'
     },
-    'movement_scales': {
+    'movement_scales': { #scales speed for joint movements
         'translation': 0.2,
         'rotation': 0.3,
         'tilt': 0.3,

@@ -127,3 +127,42 @@ A prompt will appear to select one of the available robots (Panda, UR5, or SO100
 | START           | Exit teleoperation                 |
 
 
+
+
+## Project Structure
+
+```
+Teleop_Gamepad_Mujoco/
+│
+├── config.py                # Robot configuration manager
+├── gamepad_control.py       # Main launcher interface
+├── simulation.py            # MuJoCo simulation wrapper
+│
+├── genericteleoperation.py  # Teleoperation system for Panda/UR5
+├── so100teleoperation.py    # Teleoperation system for SO100
+│
+├── generic_ik_solver.py     # Generic damped-least-squares IK solver
+├── so100_ik_solver.py       # SO100 position-only IK solver
+│
+├── movement_helper.py       # Twist integration + gripper control
+└── README.md
+```
+
+---
+
+## Documentation
+
+Full API documentation and detailed module explanations can be found here:
+
+https://sento2310.github.io/Teleop_Gamepad_Mujoco
+
+---
+
+## Notes
+
+- Requires a standard USB gamepad (Xbox, PS, or Logitech controllers work well).
+- MuJoCo XML models must be accessible via the paths configured in `simulation.py`.
+- Real-time viewer performance depends on your hardware; running on a machine with a dedicated GPU is recommended.
+- The teleoperation system uses robot-specific configurations, scaling, and axis remapping defined in `config.py`.
+
+

@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>movement_helper module &mdash; Gamepad Teleoperation Pipeline 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Gamepad Teleoperation Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Gamepad Teleoperation Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">movement_helper module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/movement_helper.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-movement_helper">
+<span id="movement-helper-module"></span><h1>movement_helper module<a class="headerlink" href="#module-movement_helper" title="Link to this heading"></a></h1>
+<p>&#64;file movement_helper.py
+&#64;brief Movement helper for pose integration and gripper control
+&#64;details Handles smooth movement calculations, pose integration,</p>
+<blockquote>
+<div><p>and gripper control for teleoperation systems.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement_helper.</span></span><span class="sig-name descname"><span class="pre">MovementHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_linear_speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_angular_speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Handles pose integration and movement calculations
+&#64;details Provides smooth end-effector pose integration from twist commands</p>
+<blockquote>
+<div><p>and gripper control with acceleration limiting.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_linear_speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_angular_speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize movement helper with stability settings</p>
+<p>&#64;param sim: Simulation instance for accessing model and data
+&#64;param robot_name: Name of the robot for configuration
+&#64;param dt: Time step for integration (seconds)
+&#64;param max_linear_speed: Maximum linear speed (m/s)
+&#64;param max_angular_speed: Maximum angular speed (rad/s)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.get_target_pose">
+<span class="sig-name descname"><span class="pre">get_target_pose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.get_target_pose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.get_target_pose" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Get current target pose</p>
+<p>&#64;return: Tuple of (target_position, target_orientation)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.integrate_twist">
+<span class="sig-name descname"><span class="pre">integrate_twist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">twist_command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.integrate_twist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.integrate_twist" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Integrate twist command to update target pose</p>
+<p>&#64;param twist_command: 6D twist [vx, vy, vz, wx, wy, wz] in end-effector frame
+&#64;return: Tuple of (new_position, new_orientation)</p>
+<p>&#64;note Applies speed limits and transforms velocities to world frame</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.move_gripper">
+<span class="sig-name descname"><span class="pre">move_gripper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gripper_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.move_gripper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.move_gripper" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Set target gripper position and movement speed</p>
+<p>&#64;param gripper_pos: Target position (0.0=closed, 1.0=open)
+&#64;param speed: Movement speed (0-1 scale)</p>
+<p>&#64;note Converts normalized position to actuator control range</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.set_initial_pose">
+<span class="sig-name descname"><span class="pre">set_initial_pose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.set_initial_pose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.set_initial_pose" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Set initial end-effector pose for integration</p>
+<p>&#64;param pos: Initial position as 3D vector [x, y, z]
+&#64;param quat: Initial orientation as quaternion [w, x, y, z]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.update_gripper">
+<span class="sig-name descname"><span class="pre">update_gripper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.update_gripper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.update_gripper" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Update gripper position towards target with speed control</p>
+<p>&#64;note Moves gripper incrementally towards target position each call</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Thomas Littmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

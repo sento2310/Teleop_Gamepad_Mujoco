@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>so100_ik_solver &mdash; Gamepad Teleoperation Pipeline 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Gamepad Teleoperation Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Gamepad Teleoperation Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">so100_ik_solver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for so100_ik_solver</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@file so100_ik_solver.py</span>
+<span class="sd">@brief Specialized IK solver for SO100 5DOF arm with joint preservation</span>
+<span class="sd">@details Preserves manually controlled joints while solving for position</span>
+<span class="sd">         using a hybrid inverse kinematics approach.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mujoco</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+
+
+<div class="viewcode-block" id="SO100IKSolver">
+<a class="viewcode-back" href="../so100_ik_solver.html#so100_ik_solver.SO100IKSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SO100IKSolver</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    @brief 5DOF IK solver that preserves manually controlled joints</span>
+<span class="sd">    @details Implements position-only inverse kinematics while fixing</span>
+<span class="sd">             rotation, wrist_pitch, and wrist_roll joints to prevent</span>
+<span class="sd">             conflicts between manual control and IK solutions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SO100IKSolver.__init__">
+<a class="viewcode-back" href="../so100_ik_solver.html#so100_ik_solver.SO100IKSolver.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">end_effector_body</span><span class="p">,</span> <span class="n">joint_controller</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Initialize IK solver for SO100 arm</span>
+
+<span class="sd">        @param model: MuJoCo model object containing robot kinematics</span>
+<span class="sd">        @param data: MuJoCo data object for current simulation state</span>
+<span class="sd">        @param end_effector_body: Name of end effector body for IK targeting</span>
+<span class="sd">        @param joint_controller: SO100Teleoperation instance for joint mapping</span>
+
+<span class="sd">        @throws ValueError: If end_effector_body not found in model</span>
+
+<span class="sd">        @note Builds joint mapping and defines control strategy automatically</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_controller</span> <span class="o">=</span> <span class="n">joint_controller</span>
+
+        <span class="c1"># Get end-effector body ID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ee_body_id</span> <span class="o">=</span> <span class="n">mujoco</span><span class="o">.</span><span class="n">mj_name2id</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">mujoco</span><span class="o">.</span><span class="n">mjtObj</span><span class="o">.</span><span class="n">mjOBJ_BODY</span><span class="p">,</span> <span class="n">end_effector_body</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee_body_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;End effector body &#39;</span><span class="si">{</span><span class="n">end_effector_body</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_joint_mapping</span><span class="p">()</span>
+
+        <span class="c1"># IK parameters for numerical stability</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_step_size</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span></div>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_joint_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Build mapping between joint names and their qpos indices</span>
+
+<span class="sd">        @note Uses joint naming patterns to identify SO100-specific joints</span>
+<span class="sd">              and defines control strategy based on joint functionality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">njnt</span><span class="p">):</span>
+            <span class="c1"># Extract joint name from model</span>
+            <span class="n">name_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">name_jntadr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">name_bytes</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">name_id</span>
+            <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">name_bytes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">joint_name</span> <span class="o">=</span> <span class="n">name_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">name_bytes</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;joint_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="c1"># Map identifiable joints based on naming patterns</span>
+            <span class="k">if</span> <span class="s1">&#39;Rotation&#39;</span> <span class="ow">in</span> <span class="n">joint_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">elif</span> <span class="s1">&#39;Pitch&#39;</span> <span class="ow">in</span> <span class="n">joint_name</span> <span class="ow">and</span> <span class="s1">&#39;Wrist&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">joint_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>  <span class="c1"># Shoulder pitch</span>
+            <span class="k">elif</span> <span class="s1">&#39;Elbow&#39;</span> <span class="ow">in</span> <span class="n">joint_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;elbow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">elif</span> <span class="s1">&#39;Wrist_Pitch&#39;</span> <span class="ow">in</span> <span class="n">joint_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;wrist_pitch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">elif</span> <span class="s1">&#39;Wrist_Roll&#39;</span> <span class="ow">in</span> <span class="n">joint_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;wrist_roll&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+
+        <span class="c1"># Define control strategy: position joints vs manual joints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position_joints</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;elbow&#39;</span><span class="p">]</span>  <span class="c1"># Controlled by IK for translation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manual_joints</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="s1">&#39;wrist_pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;wrist_roll&#39;</span><span class="p">]</span>  <span class="c1"># Manual control</span>
+
+<div class="viewcode-block" id="SO100IKSolver.solve_position_only">
+<a class="viewcode-back" href="../so100_ik_solver.html#so100_ik_solver.SO100IKSolver.solve_position_only">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve_position_only</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_pos</span><span class="p">,</span> <span class="n">fixed_rotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fixed_wrist_roll</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">fixed_wrist_pitch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Solve IK for position only while preserving manual joints</span>
+
+<span class="sd">        @param target_pos: Target position as 3D vector [x, y, z]</span>
+<span class="sd">        @param fixed_rotation: Fixed value for rotation joint (optional)</span>
+<span class="sd">        @param fixed_wrist_roll: Fixed value for wrist roll joint (optional)</span>
+<span class="sd">        @param fixed_wrist_pitch: Fixed value for wrist pitch joint (optional)</span>
+<span class="sd">        @param max_iterations: Maximum number of iterations</span>
+<span class="sd">        @param tolerance: Convergence tolerance for position error</span>
+
+<span class="sd">        @return: Tuple of (position_joint_values, success_flag)</span>
+<span class="sd">                - position_joint_values: Dictionary mapping joint names to values</span>
+<span class="sd">                - success_flag: Boolean indicating convergence success</span>
+
+<span class="sd">        @note Only solves for pitch and elbow joints while fixing other joints</span>
+<span class="sd">              to maintain manual control integrity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Store original state for restoration</span>
+        <span class="n">original_qpos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Use current values if fixed values not provided</span>
+        <span class="k">if</span> <span class="n">fixed_rotation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;rotation&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">:</span>
+            <span class="n">fixed_rotation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">fixed_wrist_roll</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;wrist_roll&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">:</span>
+            <span class="n">fixed_wrist_roll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;wrist_roll&#39;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">fixed_wrist_pitch</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;wrist_pitch&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">:</span>
+            <span class="n">fixed_wrist_pitch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;wrist_pitch&#39;</span><span class="p">]]</span>
+
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iterations</span><span class="p">):</span>
+            <span class="c1"># Apply fixed joint values to preserve manual control</span>
+            <span class="k">if</span> <span class="n">fixed_rotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;rotation&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">fixed_rotation</span>
+            <span class="k">if</span> <span class="n">fixed_wrist_roll</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;wrist_roll&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;wrist_roll&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">fixed_wrist_roll</span>
+            <span class="k">if</span> <span class="n">fixed_wrist_pitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;wrist_pitch&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="s1">&#39;wrist_pitch&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">fixed_wrist_pitch</span>
+
+            <span class="c1"># Update forward kinematics</span>
+            <span class="n">mujoco</span><span class="o">.</span><span class="n">mj_forward</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="c1"># Calculate position error</span>
+            <span class="n">current_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">xpos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ee_body_id</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">pos_error</span> <span class="o">=</span> <span class="n">target_pos</span> <span class="o">-</span> <span class="n">current_pos</span>
+            <span class="n">error_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pos_error</span><span class="p">)</span>
+
+            <span class="c1"># Check convergence</span>
+            <span class="k">if</span> <span class="n">error_norm</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Compute position Jacobian only (3xN)</span>
+            <span class="n">jac_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">nv</span><span class="p">))</span>
+            <span class="n">mujoco</span><span class="o">.</span><span class="n">mj_jacBody</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">jac_pos</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee_body_id</span><span class="p">)</span>
+
+            <span class="c1"># Extract controllable joints (position joints only)</span>
+            <span class="n">controllable_joints</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">joint_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_joints</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">joint_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">:</span>
+                    <span class="n">joint_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="n">joint_name</span><span class="p">]</span>
+                    <span class="n">dof_adr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">jnt_dofadr</span><span class="p">[</span><span class="n">joint_id</span><span class="p">]</span>
+                    <span class="n">controllable_joints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dof_adr</span><span class="p">)</span>
+
+            <span class="c1"># Exit if no controllable joints found</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">controllable_joints</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Create reduced Jacobian for controllable joints</span>
+            <span class="n">jacobian_reduced</span> <span class="o">=</span> <span class="n">jac_pos</span><span class="p">[:,</span> <span class="n">controllable_joints</span><span class="p">]</span>
+
+            <span class="c1"># Damped least squares solution for position error</span>
+            <span class="n">jacobian_t</span> <span class="o">=</span> <span class="n">jacobian_reduced</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">jjt</span> <span class="o">=</span> <span class="n">jacobian_reduced</span> <span class="o">@</span> <span class="n">jacobian_t</span>
+            <span class="n">damping_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">lambda_matrix</span> <span class="o">=</span> <span class="n">jjt</span> <span class="o">+</span> <span class="n">damping_matrix</span>
+                <span class="n">jacobian_pinv</span> <span class="o">=</span> <span class="n">jacobian_t</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">lambda_matrix</span><span class="p">)</span>
+                <span class="n">delta_q</span> <span class="o">=</span> <span class="n">jacobian_pinv</span> <span class="o">@</span> <span class="n">pos_error</span>
+
+                <span class="c1"># Limit step size for stability</span>
+                <span class="n">step_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">delta_q</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">step_norm</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_step_size</span><span class="p">:</span>
+                    <span class="n">delta_q</span> <span class="o">=</span> <span class="n">delta_q</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_step_size</span> <span class="o">/</span> <span class="n">step_norm</span><span class="p">)</span>
+
+                <span class="c1"># Apply updates to position joints with limits</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dof_adr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">controllable_joints</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">joint_name</span><span class="p">,</span> <span class="n">qpos_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">joint_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_joints</span><span class="p">:</span>
+                            <span class="n">joint_dof_adr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">jnt_dofadr</span><span class="p">[</span><span class="n">qpos_idx</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">joint_dof_adr</span> <span class="o">==</span> <span class="n">dof_adr</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="n">qpos_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">delta_q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                                <span class="c1"># Enforce joint limits</span>
+                                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">jnt_limited</span><span class="p">[</span><span class="n">qpos_idx</span><span class="p">]:</span>
+                                    <span class="n">qmin</span><span class="p">,</span> <span class="n">qmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">jnt_range</span><span class="p">[</span><span class="n">qpos_idx</span><span class="p">]</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="n">qpos_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="n">qpos_idx</span><span class="p">],</span> <span class="n">qmin</span><span class="p">,</span> <span class="n">qmax</span><span class="p">)</span>
+                                <span class="k">break</span>
+            <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+                <span class="c1"># Handle singular Jacobian by breaking iteration</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Collect final position joint values</span>
+        <span class="n">position_joint_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">joint_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_joints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">joint_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">:</span>
+                <span class="n">position_joint_values</span><span class="p">[</span><span class="n">joint_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">joint_qpos_indices</span><span class="p">[</span><span class="n">joint_name</span><span class="p">]]</span>
+
+        <span class="c1"># Restore original simulation state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">qpos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">original_qpos</span>
+        <span class="n">mujoco</span><span class="o">.</span><span class="n">mj_forward</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">position_joint_values</span><span class="p">,</span> <span class="n">success</span></div>
+</div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Thomas Littmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,28 +1,38 @@
 """
-MuJoCo simulation wrapper for robotic arm teleoperation.
-Provides simulation environment and object manipulation utilities.
+@file simulation.py
+@brief MuJoCo simulation wrapper for robotic arm teleoperation
+@details Provides simulation environment, object manipulation utilities,
+         and real-time viewer synchronization.
 """
 
 import mujoco
 import mujoco.viewer
 import time
 import numpy as np
-from config import get_robot_config
+from config import Configuration  # Updated import
 
 
 class Simulation:
-    """MuJoCo simulation class for robotic arm teleoperation."""
+    """
+    @brief MuJoCo simulation class for robotic arm teleoperation
+    @details Manages simulation state, provides object query utilities,
+             and handles real-time visualization.
+    """
 
-    def __init__(self, robot_name, show_viewer=True):  # Add robot_name parameter
+    def __init__(self, robot_name, show_viewer=True):
         """
-        @brief Initialize the simulation with a model and viewer settings
+        @brief Initialize the simulation with robot configuration
+
         @param robot_name: Name of the robot to use ('panda', 'ur5', 'so100')
-        @param show_viewer: Whether to display the visualizer
-        """
-        # Load robot-specific configuration
-        self.config = robot_name  # Use passed robot name
+        @param show_viewer: Whether to display the MuJoCo visualizer
 
-        # Robot configurations with initial positions/controls
+        @throws ValueError: If robot_name is not in supported configurations
+
+        @note Loads robot-specific XML and initial state from configuration
+        """
+        self.robot_name = robot_name
+
+        # Robot configurations with initial positions and controls
         configs = {
             "panda": {
                 "world": "franka_emika_panda/demo_scene.xml",
@@ -41,36 +51,40 @@ class Simulation:
             }
         }
 
-        # Validate and load configuration
-        if self.config not in configs:
-            raise ValueError(f"Unknown robot configuration: {self.config}")
+        # Validate robot configuration
+        if self.robot_name not in configs:
+            raise ValueError(f"Unknown robot configuration: {self.robot_name}")
 
-        config = configs[self.config]
+        config = configs[self.robot_name]
+
+        # Load model from XML file
         self.model = mujoco.MjModel.from_xml_path(config["world"])
         self.data = mujoco.MjData(self.model)
 
-        # Set initial state
+        # Set initial state from configuration
         qpos, ctrl = config["qpos"], config["ctrl"]
         self.data.qpos[:min(len(qpos), self.model.nq)] = qpos[:self.model.nq]
         self.data.ctrl[:min(len(ctrl), self.model.nu)] = ctrl[:self.model.nu]
 
+        # Step simulation to stabilize initial state
         mujoco.mj_step(self.model, self.data, nstep=100)
 
-        # Viewer setup
+        # Viewer configuration
         self.show_viewer = show_viewer
         self.step_count = 0
 
         if show_viewer:
             self.viewer = mujoco.viewer.launch_passive(self.model, self.data)
-            self.viewer_freq = 60
+            self.viewer_freq = 60  # Viewer refresh frequency (Hz)
             self.viewer_interval = 1.0 / self.viewer_freq
             self.viewer_nth = int(1 / (self.model.opt.timestep * self.viewer_freq))
             self.wall_start_time = time.time()
 
-
     def step(self):
         """
         @brief Advance simulation by one step with real-time synchronization
+
+        @note Maintains real-time synchronization when viewer is active
         """
         mujoco.mj_step(self.model, self.data, nstep=1)
         self.step_count += 1
@@ -86,15 +100,20 @@ class Simulation:
     def get_object_state(self, body_name):
         """
         @brief Get world-frame position and orientation of a body
+
         @param body_name: Name of the body to query
         @return: Tuple of (position, quaternion) arrays
+
+        @throws KeyError: If body_name is not found in the model
+
+        @note Attempts to use free joint position if available for accuracy
         """
         # Find body ID
         bid = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, body_name)
         if bid < 0:
             raise KeyError(f"Body '{body_name}' not found")
 
-        # Try to find free joint for direct access
+        # Try to find free joint for direct access to pose
         for j in range(self.model.njnt):
             if (self.model.jnt_bodyid[j] == bid and
                 self.model.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE):
@@ -102,7 +121,5 @@ class Simulation:
                 return (self.data.qpos[adr:adr+3].copy(),
                         self.data.qpos[adr+3:adr+7].copy())
 
-        # Fallback to cached pose
+        # Fallback to cached pose from forward dynamics
         return self.data.xpos[bid].copy(), self.data.xquat[bid].copy()
-
-

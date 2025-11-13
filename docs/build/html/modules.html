@@ -1,0 +1,795 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; Gamepad Teleoperation Pipeline 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="System Architecture" href="architecture.html" />
+    <link rel="prev" title="Gamepad Teleoperation Pipeline Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Gamepad Teleoperation Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-config">Core Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#config.Configuration"><code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#config.Configuration.ROBOT_CONFIGS"><code class="docutils literal notranslate"><span class="pre">Configuration.ROBOT_CONFIGS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config.Configuration.get_joint_multipliers"><code class="docutils literal notranslate"><span class="pre">Configuration.get_joint_multipliers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config.Configuration.get_movement_scales"><code class="docutils literal notranslate"><span class="pre">Configuration.get_movement_scales()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config.Configuration.get_robot_config"><code class="docutils literal notranslate"><span class="pre">Configuration.get_robot_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#simulation.Simulation"><code class="docutils literal notranslate"><span class="pre">Simulation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simulation.Simulation.__init__"><code class="docutils literal notranslate"><span class="pre">Simulation.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simulation.Simulation.get_object_state"><code class="docutils literal notranslate"><span class="pre">Simulation.get_object_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simulation.Simulation.step"><code class="docutils literal notranslate"><span class="pre">Simulation.step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#movement_helper.MovementHelper"><code class="docutils literal notranslate"><span class="pre">MovementHelper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#movement_helper.MovementHelper.__init__"><code class="docutils literal notranslate"><span class="pre">MovementHelper.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#movement_helper.MovementHelper.get_target_pose"><code class="docutils literal notranslate"><span class="pre">MovementHelper.get_target_pose()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#movement_helper.MovementHelper.integrate_twist"><code class="docutils literal notranslate"><span class="pre">MovementHelper.integrate_twist()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#movement_helper.MovementHelper.move_gripper"><code class="docutils literal notranslate"><span class="pre">MovementHelper.move_gripper()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#movement_helper.MovementHelper.set_initial_pose"><code class="docutils literal notranslate"><span class="pre">MovementHelper.set_initial_pose()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#movement_helper.MovementHelper.update_gripper"><code class="docutils literal notranslate"><span class="pre">MovementHelper.update_gripper()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-genericteleoperation">Teleoperation Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation.__init__"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation.cleanup"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation.cleanup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation.get_twist_from_gamepad"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation.get_twist_from_gamepad()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation.initialize_systems"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation.initialize_systems()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation.process_gripper"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation.process_gripper()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation.process_movement"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation.process_movement()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation.remap_twist"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation.remap_twist()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#genericteleoperation.GenericTeleoperation.run"><code class="docutils literal notranslate"><span class="pre">GenericTeleoperation.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#genericteleoperation.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#so100teleoperation.SO100JointController"><code class="docutils literal notranslate"><span class="pre">SO100JointController</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100JointController.__init__"><code class="docutils literal notranslate"><span class="pre">SO100JointController.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100JointController.control_rotation_joint"><code class="docutils literal notranslate"><span class="pre">SO100JointController.control_rotation_joint()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100JointController.control_wrist_pitch"><code class="docutils literal notranslate"><span class="pre">SO100JointController.control_wrist_pitch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100JointController.control_wrist_roll"><code class="docutils literal notranslate"><span class="pre">SO100JointController.control_wrist_roll()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.__init__"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.calculate_pure_translation"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.calculate_pure_translation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.cleanup"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.cleanup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.get_input_from_gamepad"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.get_input_from_gamepad()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.get_rotation_joint_position"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.get_rotation_joint_position()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.initialize_systems"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.initialize_systems()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.process_gripper"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.process_gripper()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.process_joint_control"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.process_joint_control()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.process_translation_control"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.process_translation_control()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100teleoperation.SO100Teleoperation.run"><code class="docutils literal notranslate"><span class="pre">SO100Teleoperation.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#so100teleoperation.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-generic_ik_solver">IK Solvers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#generic_ik_solver.GenericVelocityIKSolver"><code class="docutils literal notranslate"><span class="pre">GenericVelocityIKSolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#generic_ik_solver.GenericVelocityIKSolver.__init__"><code class="docutils literal notranslate"><span class="pre">GenericVelocityIKSolver.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#generic_ik_solver.GenericVelocityIKSolver.solve"><code class="docutils literal notranslate"><span class="pre">GenericVelocityIKSolver.solve()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#so100_ik_solver.SO100IKSolver"><code class="docutils literal notranslate"><span class="pre">SO100IKSolver</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#so100_ik_solver.SO100IKSolver.__init__"><code class="docutils literal notranslate"><span class="pre">SO100IKSolver.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#so100_ik_solver.SO100IKSolver.solve_position_only"><code class="docutils literal notranslate"><span class="pre">SO100IKSolver.solve_position_only()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gamepad_control">Launcher</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gamepad_control.GamepadControlLauncher"><code class="docutils literal notranslate"><span class="pre">GamepadControlLauncher</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gamepad_control.GamepadControlLauncher.__init__"><code class="docutils literal notranslate"><span class="pre">GamepadControlLauncher.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gamepad_control.GamepadControlLauncher.get_robot_info"><code class="docutils literal notranslate"><span class="pre">GamepadControlLauncher.get_robot_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gamepad_control.GamepadControlLauncher.initialize_teleop_system"><code class="docutils literal notranslate"><span class="pre">GamepadControlLauncher.initialize_teleop_system()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gamepad_control.GamepadControlLauncher.run"><code class="docutils literal notranslate"><span class="pre">GamepadControlLauncher.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gamepad_control.GamepadControlLauncher.select_robot"><code class="docutils literal notranslate"><span class="pre">GamepadControlLauncher.select_robot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#gamepad_control.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Gamepad Teleoperation Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<section id="module-config">
+<span id="core-modules"></span><h2>Core Modules<a class="headerlink" href="#module-config" title="Link to this heading"></a></h2>
+<p>&#64;file config.py
+&#64;brief Centralized configuration manager for the teleoperation system
+&#64;details Provides type-safe access to robot configurations with validation</p>
+<blockquote>
+<div><p>and centralized management of all robot parameters.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="config.Configuration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">config.</span></span><span class="sig-name descname"><span class="pre">Configuration</span></span><a class="reference internal" href="_modules/config.html#Configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#config.Configuration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Configuration manager for robotic arm teleoperation system
+&#64;details Provides centralized access to robot configurations with</p>
+<blockquote>
+<div><p>validation and default value handling for all teleoperation modules.</p>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="config.Configuration.ROBOT_CONFIGS">
+<span class="sig-name descname"><span class="pre">ROBOT_CONFIGS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'panda':</span> <span class="pre">{'arm_joint_count':</span> <span class="pre">7,</span> <span class="pre">'axis_remap':</span> <span class="pre">{'pitch':</span> <span class="pre">'pitch',</span> <span class="pre">'roll':</span> <span class="pre">'roll',</span> <span class="pre">'vx':</span> <span class="pre">'vx',</span> <span class="pre">'vy':</span> <span class="pre">'vy',</span> <span class="pre">'vz':</span> <span class="pre">'vz',</span> <span class="pre">'yaw':</span> <span class="pre">'yaw'},</span> <span class="pre">'end_effector_body':</span> <span class="pre">'hand',</span> <span class="pre">'movement_scales':</span> <span class="pre">{'deadzone_threshold':</span> <span class="pre">0.1,</span> <span class="pre">'gripper_close_pos':</span> <span class="pre">0.0,</span> <span class="pre">'gripper_open_pos':</span> <span class="pre">1.0,</span> <span class="pre">'gripper_speed':</span> <span class="pre">1,</span> <span class="pre">'rotation':</span> <span class="pre">0.5,</span> <span class="pre">'tilt':</span> <span class="pre">0.5,</span> <span class="pre">'translation':</span> <span class="pre">0.3},</span> <span class="pre">'name':</span> <span class="pre">'Franka</span> <span class="pre">Emika</span> <span class="pre">Panda',</span> <span class="pre">'xml_path':</span> <span class="pre">'franka_emika_panda/panda.xml'},</span> <span class="pre">'so100':</span> <span class="pre">{'arm_joint_count':</span> <span class="pre">5,</span> <span class="pre">'axis_remap':</span> <span class="pre">{'pitch':</span> <span class="pre">'yaw',</span> <span class="pre">'roll':</span> <span class="pre">'pitch',</span> <span class="pre">'vx':</span> <span class="pre">'vy',</span> <span class="pre">'vy':</span> <span class="pre">'vz',</span> <span class="pre">'vz':</span> <span class="pre">'vx',</span> <span class="pre">'yaw':</span> <span class="pre">'roll'},</span> <span class="pre">'end_effector_body':</span> <span class="pre">'Fixed_Jaw',</span> <span class="pre">'joint_multipliers':</span> <span class="pre">{'elbow':</span> <span class="pre">1.0,</span> <span class="pre">'pitch':</span> <span class="pre">1.0,</span> <span class="pre">'rotation':</span> <span class="pre">0.005,</span> <span class="pre">'wrist_pitch':</span> <span class="pre">0.02,</span> <span class="pre">'wrist_roll':</span> <span class="pre">0.01},</span> <span class="pre">'movement_scales':</span> <span class="pre">{'deadzone_threshold':</span> <span class="pre">0.1,</span> <span class="pre">'gripper_close_pos':</span> <span class="pre">0.0,</span> <span class="pre">'gripper_open_pos':</span> <span class="pre">0.0123,</span> <span class="pre">'gripper_speed':</span> <span class="pre">1,</span> <span class="pre">'rotation':</span> <span class="pre">0.4,</span> <span class="pre">'tilt':</span> <span class="pre">0.4,</span> <span class="pre">'translation':</span> <span class="pre">0.15},</span> <span class="pre">'name':</span> <span class="pre">'SO100</span> <span class="pre">Robotic</span> <span class="pre">Arm',</span> <span class="pre">'xml_path':</span> <span class="pre">'trs_so_arm100/so_arm100.xml'},</span> <span class="pre">'ur5':</span> <span class="pre">{'arm_joint_count':</span> <span class="pre">6,</span> <span class="pre">'axis_remap':</span> <span class="pre">{'pitch':</span> <span class="pre">'pitch',</span> <span class="pre">'roll':</span> <span class="pre">'roll',</span> <span class="pre">'vx':</span> <span class="pre">'vx',</span> <span class="pre">'vy':</span> <span class="pre">'vy',</span> <span class="pre">'vz':</span> <span class="pre">'vz',</span> <span class="pre">'yaw':</span> <span class="pre">'yaw'},</span> <span class="pre">'end_effector_body':</span> <span class="pre">'robotiq_base',</span> <span class="pre">'movement_scales':</span> <span class="pre">{'deadzone_threshold':</span> <span class="pre">0.1,</span> <span class="pre">'gripper_close_pos':</span> <span class="pre">0.0,</span> <span class="pre">'gripper_open_pos':</span> <span class="pre">1.0,</span> <span class="pre">'gripper_speed':</span> <span class="pre">1,</span> <span class="pre">'rotation':</span> <span class="pre">0.3,</span> <span class="pre">'tilt':</span> <span class="pre">0.3,</span> <span class="pre">'translation':</span> <span class="pre">0.2},</span> <span class="pre">'name':</span> <span class="pre">'UR5e</span> <span class="pre">with</span> <span class="pre">2F-85</span> <span class="pre">Gripper',</span> <span class="pre">'xml_path':</span> <span class="pre">'universal_robots_ur5e/ur5e_with_gripper.xml'}}</span></em><a class="headerlink" href="#config.Configuration.ROBOT_CONFIGS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="config.Configuration.get_joint_multipliers">
+<span class="sig-name descname"><span class="pre">get_joint_multipliers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#Configuration.get_joint_multipliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#config.Configuration.get_joint_multipliers" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Retrieve joint control multipliers for specified robot</p>
+<p>&#64;param robot_name: Name of the robot
+&#64;return: Dictionary of joint multiplier parameters</p>
+<p>&#64;note Returns default values (1.0) if joint_multipliers not defined</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="config.Configuration.get_movement_scales">
+<span class="sig-name descname"><span class="pre">get_movement_scales</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#Configuration.get_movement_scales"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#config.Configuration.get_movement_scales" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Retrieve movement scaling parameters for specified robot</p>
+<p>&#64;param robot_name: Name of the robot
+&#64;return: Dictionary of movement scale parameters</p>
+<p>&#64;note Returns default values if movement_scales not defined for robot</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="config.Configuration.get_robot_config">
+<span class="sig-name descname"><span class="pre">get_robot_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#Configuration.get_robot_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#config.Configuration.get_robot_config" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Retrieve configuration dictionary for specified robot</p>
+<p>&#64;param robot_name: Name of the robot configuration to retrieve
+&#64;return: Copy of the robot configuration dictionary</p>
+<p>&#64;throws ValueError: If robot_name is not found in ROBOT_CONFIGS</p>
+<p>&#64;note Returns a copy to prevent modification of original configuration</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-simulation">&#64;file simulation.py
+&#64;brief MuJoCo simulation wrapper for robotic arm teleoperation
+&#64;details Provides simulation environment, object manipulation utilities,</p>
+<blockquote>
+<div><p>and real-time viewer synchronization.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulation.Simulation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_viewer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulation.Simulation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief MuJoCo simulation class for robotic arm teleoperation
+&#64;details Manages simulation state, provides object query utilities,</p>
+<blockquote>
+<div><p>and handles real-time visualization.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulation.Simulation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_viewer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulation.Simulation.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize the simulation with robot configuration</p>
+<p>&#64;param robot_name: Name of the robot to use (‘panda’, ‘ur5’, ‘so100’)
+&#64;param show_viewer: Whether to display the MuJoCo visualizer</p>
+<p>&#64;throws ValueError: If robot_name is not in supported configurations</p>
+<p>&#64;note Loads robot-specific XML and initial state from configuration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulation.Simulation.get_object_state">
+<span class="sig-name descname"><span class="pre">get_object_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.get_object_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulation.Simulation.get_object_state" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Get world-frame position and orientation of a body</p>
+<p>&#64;param body_name: Name of the body to query
+&#64;return: Tuple of (position, quaternion) arrays</p>
+<p>&#64;throws KeyError: If body_name is not found in the model</p>
+<p>&#64;note Attempts to use free joint position if available for accuracy</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulation.Simulation.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulation.Simulation.step" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Advance simulation by one step with real-time synchronization</p>
+<p>&#64;note Maintains real-time synchronization when viewer is active</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-movement_helper">&#64;file movement_helper.py
+&#64;brief Movement helper for pose integration and gripper control
+&#64;details Handles smooth movement calculations, pose integration,</p>
+<blockquote>
+<div><p>and gripper control for teleoperation systems.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement_helper.</span></span><span class="sig-name descname"><span class="pre">MovementHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_linear_speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_angular_speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Handles pose integration and movement calculations
+&#64;details Provides smooth end-effector pose integration from twist commands</p>
+<blockquote>
+<div><p>and gripper control with acceleration limiting.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_linear_speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_angular_speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize movement helper with stability settings</p>
+<p>&#64;param sim: Simulation instance for accessing model and data
+&#64;param robot_name: Name of the robot for configuration
+&#64;param dt: Time step for integration (seconds)
+&#64;param max_linear_speed: Maximum linear speed (m/s)
+&#64;param max_angular_speed: Maximum angular speed (rad/s)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.get_target_pose">
+<span class="sig-name descname"><span class="pre">get_target_pose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.get_target_pose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.get_target_pose" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Get current target pose</p>
+<p>&#64;return: Tuple of (target_position, target_orientation)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.integrate_twist">
+<span class="sig-name descname"><span class="pre">integrate_twist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">twist_command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.integrate_twist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.integrate_twist" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Integrate twist command to update target pose</p>
+<p>&#64;param twist_command: 6D twist [vx, vy, vz, wx, wy, wz] in end-effector frame
+&#64;return: Tuple of (new_position, new_orientation)</p>
+<p>&#64;note Applies speed limits and transforms velocities to world frame</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.move_gripper">
+<span class="sig-name descname"><span class="pre">move_gripper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gripper_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.move_gripper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.move_gripper" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Set target gripper position and movement speed</p>
+<p>&#64;param gripper_pos: Target position (0.0=closed, 1.0=open)
+&#64;param speed: Movement speed (0-1 scale)</p>
+<p>&#64;note Converts normalized position to actuator control range</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.set_initial_pose">
+<span class="sig-name descname"><span class="pre">set_initial_pose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.set_initial_pose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.set_initial_pose" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Set initial end-effector pose for integration</p>
+<p>&#64;param pos: Initial position as 3D vector [x, y, z]
+&#64;param quat: Initial orientation as quaternion [w, x, y, z]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement_helper.MovementHelper.update_gripper">
+<span class="sig-name descname"><span class="pre">update_gripper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement_helper.html#MovementHelper.update_gripper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement_helper.MovementHelper.update_gripper" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Update gripper position towards target with speed control</p>
+<p>&#64;note Moves gripper incrementally towards target position each call</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-genericteleoperation">
+<span id="teleoperation-modules"></span><h2>Teleoperation Modules<a class="headerlink" href="#module-genericteleoperation" title="Link to this heading"></a></h2>
+<p>&#64;file genericteleoperation.py
+&#64;brief Main teleoperation module for Panda and UR5 robots
+&#64;details Handles gamepad input processing, IK solving, and simulation control</p>
+<blockquote>
+<div><p>for 6DOF robotic arms using inverse kinematics.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">genericteleoperation.</span></span><span class="sig-name descname"><span class="pre">GenericTeleoperation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'panda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Teleoperation system for Panda and UR5 robotic arms
+&#64;details Provides complete 6DOF control using inverse kinematics</p>
+<blockquote>
+<div><p>with smooth filtering and gripper control.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'panda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize teleoperation system for specified robot</p>
+<p>&#64;param robot_name: Name of the robot (‘panda’ or ‘ur5’)</p>
+<p>&#64;note Default robot is ‘panda’ if not specified</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation.cleanup" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Clean up resources and shutdown systems</p>
+<p>&#64;note Closes viewer and quits pygame gracefully</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation.get_twist_from_gamepad">
+<span class="sig-name descname"><span class="pre">get_twist_from_gamepad</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation.get_twist_from_gamepad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation.get_twist_from_gamepad" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Convert gamepad inputs to end-effector twist commands</p>
+<dl class="simple">
+<dt>&#64;return: Tuple of (twist_command, start_button, a_button_state)</dt><dd><ul class="simple">
+<li><p>twist_command: 6D twist vector [vx, vy, vz, roll, pitch, yaw]</p></li>
+<li><p>start_button: Boolean indicating START button state</p></li>
+<li><p>a_button_state: Boolean indicating A button state</p></li>
+</ul>
+</dd>
+</dl>
+<p>&#64;note Applies deadzone filtering and axis scaling from configuration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation.initialize_systems">
+<span class="sig-name descname"><span class="pre">initialize_systems</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation.initialize_systems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation.initialize_systems" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize all required systems for teleoperation</p>
+<p>&#64;return: True if all systems initialized successfully, False otherwise</p>
+<p>&#64;throws RuntimeError: If no gamepad detected</p>
+<p>&#64;note Initializes pygame, gamepad, simulation, and control systems</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation.process_gripper">
+<span class="sig-name descname"><span class="pre">process_gripper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_button</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation.process_gripper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation.process_gripper" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Process gripper control input with toggle behavior</p>
+<p>&#64;param a_button: Current state of A button</p>
+<p>&#64;note Toggles gripper state on button press with configurable positions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation.process_movement">
+<span class="sig-name descname"><span class="pre">process_movement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">twist_command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation.process_movement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation.process_movement" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Process movement command using inverse kinematics</p>
+<p>&#64;param twist_command: 6D twist command for end-effector movement</p>
+<p>&#64;note Applies low-pass filtering for smooth movement and handles IK convergence</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation.remap_twist">
+<span class="sig-name descname"><span class="pre">remap_twist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">twist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation.remap_twist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation.remap_twist" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Apply robot-specific axis remapping to twist command</p>
+<p>&#64;param twist: Original twist command [vx, vy, vz, roll, pitch, yaw]
+&#64;return: Remapped twist command based on robot configuration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="genericteleoperation.GenericTeleoperation.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#GenericTeleoperation.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.GenericTeleoperation.run" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Main teleoperation loop</p>
+<dl class="simple">
+<dt>&#64;note Handles gamepad input, movement processing, and simulation stepping</dt><dd><p>Exits gracefully on START button or KeyboardInterrupt</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="genericteleoperation.main">
+<span class="sig-prename descclassname"><span class="pre">genericteleoperation.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/genericteleoperation.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#genericteleoperation.main" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Main function for direct execution of generic teleoperation</p>
+<p>&#64;note Can be used for testing without the launcher system</p>
+</dd></dl>
+
+<p id="module-so100teleoperation">&#64;file so100teleoperation.py
+&#64;brief SO100-specific teleoperation with hybrid control scheme</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">so100teleoperation.</span></span><span class="sig-name descname"><span class="pre">SO100JointController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Joint-space controller for SO100-specific movements
+&#64;details Provides direct joint control for rotation, wrist_pitch, and wrist_roll</p>
+<blockquote>
+<div><p>with scaling and multiplier application from configuration.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize SO100 joint controller</p>
+<p>&#64;param sim: Simulation instance for accessing model and data</p>
+<p>&#64;note Builds joint mapping and loads configuration parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController.control_rotation_joint">
+<span class="sig-name descname"><span class="pre">control_rotation_joint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left_stick_x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController.control_rotation_joint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController.control_rotation_joint" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Control base rotation joint</p>
+<p>&#64;param left_stick_x: Left stick horizontal input value</p>
+<p>&#64;note Applies movement scale and joint multiplier from configuration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController.control_wrist_pitch">
+<span class="sig-name descname"><span class="pre">control_wrist_pitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController.control_wrist_pitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController.control_wrist_pitch" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Control wrist pitch using shoulder buttons</p>
+<p>&#64;param l1: Left shoulder button state (0 or 1)
+&#64;param r1: Right shoulder button state (0 or 1)</p>
+<p>&#64;note Differential control: l1 decreases, r1 increases pitch</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController.control_wrist_roll">
+<span class="sig-name descname"><span class="pre">control_wrist_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController.control_wrist_roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController.control_wrist_roll" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Control wrist roll using triggers</p>
+<p>&#64;param l2: Left trigger value (0.0 to 1.0)
+&#64;param r2: Right trigger value (0.0 to 1.0)</p>
+<p>&#64;note Differential control: l2 decreases, r2 increases roll</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">so100teleoperation.</span></span><span class="sig-name descname"><span class="pre">SO100Teleoperation</span></span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief SO100-specific teleoperation system with hybrid control
+&#64;details Implements hybrid control scheme using joint control for rotations</p>
+<blockquote>
+<div><p>and inverse kinematics for translations with conflict prevention.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize SO100 teleoperation system</p>
+<p>&#64;note Loads SO100-specific configuration and control parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.calculate_pure_translation">
+<span class="sig-name descname"><span class="pre">calculate_pure_translation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translation_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.calculate_pure_translation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.calculate_pure_translation" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Calculate target position using rotation joint as reference</p>
+<p>&#64;param current_pos: Current end-effector position
+&#64;param right_y: Right stick Y input (horizontal movement)
+&#64;param left_y: Left stick Y input (vertical movement)
+&#64;param translation_scale: Movement scaling factor
+&#64;param dt: Time step for integration</p>
+<p>&#64;return: Target position as 3D vector</p>
+<p>&#64;note Uses rotation joint position as reference for radial movement</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.cleanup" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Clean up resources and shutdown systems</p>
+<p>&#64;note Closes viewer and quits pygame gracefully</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.get_input_from_gamepad">
+<span class="sig-name descname"><span class="pre">get_input_from_gamepad</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.get_input_from_gamepad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.get_input_from_gamepad" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Get modified input structure for SO100 pure translational control</p>
+<p>&#64;return: Dictionary containing all gamepad input values</p>
+<p>&#64;note Applies deadzone filtering and returns structured input data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.get_rotation_joint_position">
+<span class="sig-name descname"><span class="pre">get_rotation_joint_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.get_rotation_joint_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.get_rotation_joint_position" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Get world position of rotation joint for movement reference</p>
+<p>&#64;return: Position of rotation joint as 3D vector</p>
+<p>&#64;note Attempts multiple methods to find rotation joint position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.initialize_systems">
+<span class="sig-name descname"><span class="pre">initialize_systems</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.initialize_systems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.initialize_systems" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize all required systems for SO100 teleoperation</p>
+<p>&#64;return: True if all systems initialized successfully, False otherwise</p>
+<p>&#64;throws RuntimeError: If no gamepad detected</p>
+<p>&#64;note Sets up pygame, simulation, joint controller, and IK systems</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.process_gripper">
+<span class="sig-name descname"><span class="pre">process_gripper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_button</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.process_gripper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.process_gripper" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Process gripper control input with toggle behavior</p>
+<p>&#64;param a_button: Current state of A button</p>
+<p>&#64;note Toggles gripper state on button press with configurable positions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.process_joint_control">
+<span class="sig-name descname"><span class="pre">process_joint_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.process_joint_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.process_joint_control" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Process joint-space control for manual joints</p>
+<p>&#64;param input_data: Dictionary containing gamepad input values</p>
+<p>&#64;note Controls rotation, wrist_roll, and wrist_pitch joints directly</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.process_translation_control">
+<span class="sig-name descname"><span class="pre">process_translation_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.process_translation_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.process_translation_control" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Process translational control using IK with conflict prevention</p>
+<p>&#64;param input_data: Dictionary containing gamepad input values</p>
+<dl class="simple">
+<dt>&#64;note Skips translation when significant rotation input is detected</dt><dd><p>to prevent control conflicts between manual and IK control</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.run" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Main teleoperation loop for SO100</p>
+<dl class="simple">
+<dt>&#64;note Handles input processing, control execution, and simulation stepping</dt><dd><p>with comprehensive user feedback and error handling</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="so100teleoperation.main">
+<span class="sig-prename descclassname"><span class="pre">so100teleoperation.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.main" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Legacy main function for direct execution without launcher</p>
+<p>&#64;note Can be used for testing SO100 teleoperation independently</p>
+</dd></dl>
+
+</section>
+<section id="module-generic_ik_solver">
+<span id="ik-solvers"></span><h2>IK Solvers<a class="headerlink" href="#module-generic_ik_solver" title="Link to this heading"></a></h2>
+<p>&#64;file generic_ik_solver.py
+&#64;brief Generic velocity-based inverse kinematics solver
+&#64;details Uses damped least squares method for stable joint-space trajectories</p>
+<blockquote>
+<div><p>with joint limit enforcement and singularity handling.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="generic_ik_solver.GenericVelocityIKSolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">generic_ik_solver.</span></span><span class="sig-name descname"><span class="pre">GenericVelocityIKSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_effector_body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm_joint_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/generic_ik_solver.html#GenericVelocityIKSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#generic_ik_solver.GenericVelocityIKSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Inverse kinematics solver using Jacobian pseudo-inverse method
+&#64;details Implements iterative damped least squares for end-effector pose control</p>
+<blockquote>
+<div><p>with numerical stability and joint limit constraints.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="generic_ik_solver.GenericVelocityIKSolver.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_effector_body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm_joint_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/generic_ik_solver.html#GenericVelocityIKSolver.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#generic_ik_solver.GenericVelocityIKSolver.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize IK solver for specified end effector</p>
+<p>&#64;param model: MuJoCo model object containing robot kinematics
+&#64;param data: MuJoCo data object for current simulation state
+&#64;param end_effector_body: Name of end effector body for IK targeting
+&#64;param arm_joint_count: Number of arm joints to use for IK solution</p>
+<p>&#64;throws ValueError: If end_effector_body not found in model</p>
+<p>&#64;note Automatically detects revolute joints for IK control</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="generic_ik_solver.GenericVelocityIKSolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_quat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/generic_ik_solver.html#GenericVelocityIKSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#generic_ik_solver.GenericVelocityIKSolver.solve" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Solve inverse kinematics for target end-effector pose</p>
+<p>&#64;param target_pos: Target position as 3D vector [x, y, z]
+&#64;param target_quat: Target orientation as quaternion [w, x, y, z]
+&#64;param max_iterations: Maximum number of gradient descent iterations
+&#64;param tolerance: Convergence tolerance for pose error norm</p>
+<dl class="simple">
+<dt>&#64;return: Tuple of (joint_positions, success_flag)</dt><dd><ul class="simple">
+<li><p>joint_positions: Array of solved joint angles</p></li>
+<li><p>success_flag: Boolean indicating convergence success</p></li>
+</ul>
+</dd>
+</dl>
+<p>&#64;throws LinAlgError: If Jacobian matrix is singular during inversion</p>
+<dl class="simple">
+<dt>&#64;note Uses damped least squares: $Delta q = J^T (JJ^T + lambda I)^{-1} e$</dt><dd><p>where $e$ is the 6D pose error vector and $lambda$ is damping factor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-so100_ik_solver">&#64;file so100_ik_solver.py
+&#64;brief Specialized IK solver for SO100 5DOF arm with joint preservation
+&#64;details Preserves manually controlled joints while solving for position</p>
+<blockquote>
+<div><p>using a hybrid inverse kinematics approach.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="so100_ik_solver.SO100IKSolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">so100_ik_solver.</span></span><span class="sig-name descname"><span class="pre">SO100IKSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_effector_body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_controller</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100_ik_solver.html#SO100IKSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100_ik_solver.SO100IKSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief 5DOF IK solver that preserves manually controlled joints
+&#64;details Implements position-only inverse kinematics while fixing</p>
+<blockquote>
+<div><p>rotation, wrist_pitch, and wrist_roll joints to prevent
+conflicts between manual control and IK solutions.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="so100_ik_solver.SO100IKSolver.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_effector_body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_controller</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100_ik_solver.html#SO100IKSolver.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100_ik_solver.SO100IKSolver.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize IK solver for SO100 arm</p>
+<p>&#64;param model: MuJoCo model object containing robot kinematics
+&#64;param data: MuJoCo data object for current simulation state
+&#64;param end_effector_body: Name of end effector body for IK targeting
+&#64;param joint_controller: SO100Teleoperation instance for joint mapping</p>
+<p>&#64;throws ValueError: If end_effector_body not found in model</p>
+<p>&#64;note Builds joint mapping and defines control strategy automatically</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100_ik_solver.SO100IKSolver.solve_position_only">
+<span class="sig-name descname"><span class="pre">solve_position_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_wrist_roll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_wrist_pitch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100_ik_solver.html#SO100IKSolver.solve_position_only"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100_ik_solver.SO100IKSolver.solve_position_only" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Solve IK for position only while preserving manual joints</p>
+<p>&#64;param target_pos: Target position as 3D vector [x, y, z]
+&#64;param fixed_rotation: Fixed value for rotation joint (optional)
+&#64;param fixed_wrist_roll: Fixed value for wrist roll joint (optional)
+&#64;param fixed_wrist_pitch: Fixed value for wrist pitch joint (optional)
+&#64;param max_iterations: Maximum number of iterations
+&#64;param tolerance: Convergence tolerance for position error</p>
+<dl class="simple">
+<dt>&#64;return: Tuple of (position_joint_values, success_flag)</dt><dd><ul class="simple">
+<li><p>position_joint_values: Dictionary mapping joint names to values</p></li>
+<li><p>success_flag: Boolean indicating convergence success</p></li>
+</ul>
+</dd>
+<dt>&#64;note Only solves for pitch and elbow joints while fixing other joints</dt><dd><p>to maintain manual control integrity</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-gamepad_control">
+<span id="launcher"></span><h2>Launcher<a class="headerlink" href="#module-gamepad_control" title="Link to this heading"></a></h2>
+<p>&#64;file gamepad_control.py
+&#64;brief Main launcher for robotic arm teleoperation system
+&#64;details Provides unified entry point with robot selection interface</p>
+<blockquote>
+<div><p>and system initialization for all supported robots.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gamepad_control.</span></span><span class="sig-name descname"><span class="pre">GamepadControlLauncher</span></span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Main launcher class for robotic arm teleoperation systems
+&#64;details Handles robot selection, system initialization, and provides</p>
+<blockquote>
+<div><p>command-line and interactive selection interfaces.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize the gamepad control launcher with available robots</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.get_robot_info">
+<span class="sig-name descname"><span class="pre">get_robot_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.get_robot_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.get_robot_info" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Retrieve basic information about a specific robot</p>
+<p>&#64;param robot_name: Name of the robot to query
+&#64;return: Dictionary with robot info or None if robot not found</p>
+<p>&#64;note Returns None if robot configuration cannot be retrieved</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.initialize_teleop_system">
+<span class="sig-name descname"><span class="pre">initialize_teleop_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.initialize_teleop_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.initialize_teleop_system" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize appropriate teleoperation system based on selected robot</p>
+<p>&#64;return: True if initialization successful, False otherwise</p>
+<p>&#64;throws ImportError: If required teleoperation module cannot be imported
+&#64;throws Exception: For general initialization failures</p>
+<p>&#64;note Uses SO100-specific system for SO100, generic for Panda/UR5</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.run" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Execute the selected teleoperation system</p>
+<p>&#64;note Handles KeyboardInterrupt and general exceptions gracefully</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.select_robot">
+<span class="sig-name descname"><span class="pre">select_robot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.select_robot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.select_robot" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Select and validate robot for teleoperation</p>
+<p>&#64;param robot_name: Name of the robot to control
+&#64;return: True if selection valid and robot available, False otherwise</p>
+<p>&#64;note Prints error message and available options if robot not found</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="gamepad_control.main">
+<span class="sig-prename descclassname"><span class="pre">gamepad_control.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.main" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Main entry point for gamepad control application</p>
+<dl class="simple">
+<dt>&#64;details Supports both command-line arguments and interactive selection</dt><dd><p>Displays available robots and usage instructions</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Gamepad Teleoperation Pipeline Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="architecture.html" class="btn btn-neutral float-right" title="System Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Thomas Littmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

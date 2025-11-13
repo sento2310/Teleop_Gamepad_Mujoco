@@ -1,6 +1,8 @@
 """
-Main teleoperation module for Panda and UR5 robots.
-Handles gamepad input processing and IK solving.
+@file genericteleoperation.py
+@brief Main teleoperation module for Panda and UR5 robots
+@details Handles gamepad input processing, IK solving, and simulation control
+         for 6DOF robotic arms using inverse kinematics.
 """
 
 import pygame
@@ -8,19 +10,23 @@ import numpy as np
 from simulation import Simulation
 from generic_ik_solver import GenericVelocityIKSolver
 from movement_helper import MovementHelper
-from config import get_movement_scales, get_robot_config
+from config import Configuration  # Updated import
 
 
 class GenericTeleoperation:
     """
-    Teleoperation system for Panda and UR5 robotic arms.
-    Provides complete 6DOF control using inverse kinematics.
+    @brief Teleoperation system for Panda and UR5 robotic arms
+    @details Provides complete 6DOF control using inverse kinematics
+             with smooth filtering and gripper control.
     """
 
     def __init__(self, robot_name='panda'):
         """
         @brief Initialize teleoperation system for specified robot
+
         @param robot_name: Name of the robot ('panda' or 'ur5')
+
+        @note Default robot is 'panda' if not specified
         """
         self.robot_name = robot_name
         self.running = False
@@ -29,17 +35,26 @@ class GenericTeleoperation:
         self.movement = None
         self.ik_solver = None
 
-        # Control state
+        # Control state for smooth operation
         self.filtered_twist = np.zeros(6)
         self.gripper_state = "closed"
         self.last_a_state = False
 
-        # Get robot configuration
-        self.robot_config = get_robot_config(robot_name)
-        self.scales = get_movement_scales(robot_name)
+        # Get robot-specific configuration
+        self.robot_config = Configuration.get_robot_config(robot_name)
+        self.scales = Configuration.get_movement_scales(robot_name)
+
 
     def initialize_systems(self):
-        """@brief Initialize all required systems (simulation, controllers, etc.)"""
+        """
+        @brief Initialize all required systems for teleoperation
+
+        @return: True if all systems initialized successfully, False otherwise
+
+        @throws RuntimeError: If no gamepad detected
+
+        @note Initializes pygame, gamepad, simulation, and control systems
+        """
         print(f"Initializing teleoperation for {self.robot_name}...")
 
         # Initialize pygame and gamepad
@@ -73,8 +88,9 @@ class GenericTeleoperation:
     def remap_twist(self, twist):
         """
         @brief Apply robot-specific axis remapping to twist command
+
         @param twist: Original twist command [vx, vy, vz, roll, pitch, yaw]
-        @return: Remapped twist command
+        @return: Remapped twist command based on robot configuration
         """
         remap_rules = self.robot_config.get('axis_remap', {})
 
@@ -90,8 +106,8 @@ class GenericTeleoperation:
             '0': 0.0
         }
 
-        # Apply remapping rules
-        return np.array([
+        # Apply remapping rules from configuration
+        remapped_twist = np.array([
             values.get(remap_rules.get('vx', 'vx'), 0),
             values.get(remap_rules.get('vy', 'vy'), 0),
             values.get(remap_rules.get('vz', 'vz'), 0),
@@ -100,17 +116,26 @@ class GenericTeleoperation:
             values.get(remap_rules.get('yaw', 'yaw'), 0)
         ])
 
+        return remapped_twist
+
     def get_twist_from_gamepad(self):
         """
         @brief Convert gamepad inputs to end-effector twist commands
+
         @return: Tuple of (twist_command, start_button, a_button_state)
+                - twist_command: 6D twist vector [vx, vy, vz, roll, pitch, yaw]
+                - start_button: Boolean indicating START button state
+                - a_button_state: Boolean indicating A button state
+
+        @note Applies deadzone filtering and axis scaling from configuration
         """
         DEADZONE_THRESHOLD = self.scales['deadzone_threshold']
 
         def deadzone(value):
+            """Apply deadzone filtering to analog inputs"""
             return 0.0 if abs(value) < DEADZONE_THRESHOLD else value
 
-        # Joystick inputs with deadzone
+        # Joystick inputs with deadzone filtering
         left_x = deadzone(-self.joystick.get_axis(0))
         left_y = deadzone(self.joystick.get_axis(1))
         right_x = deadzone(-self.joystick.get_axis(2))
@@ -120,18 +145,18 @@ class GenericTeleoperation:
         l1, r1 = self.joystick.get_button(4), self.joystick.get_button(5)
         start, a_button = self.joystick.get_button(7), self.joystick.get_button(0)
 
-        # Trigger inputs
+        # Trigger inputs with deadzone
         l2_raw, r2_raw = (self.joystick.get_axis(4) + 1) / 2, (self.joystick.get_axis(5) + 1) / 2
         l2 = 0.0 if l2_raw < DEADZONE_THRESHOLD else l2_raw
         r2 = 0.0 if r2_raw < DEADZONE_THRESHOLD else r2_raw
 
-        # Twist components
-        vx = right_y * self.scales['translation']   # Forward/backward
-        vy = left_x * self.scales['translation']    # Left/right
-        vz = left_y * self.scales['translation']    # Up/down
+        # Calculate twist components with scaling
+        vx = right_y * self.scales['translation']   # Forward/backward movement
+        vy = left_x * self.scales['translation']    # Left/right movement
+        vz = left_y * self.scales['translation']    # Up/down movement
 
-        # Handle SO100 case if somehow selected (though this class is for Panda/UR5)
-        roll = 0.0 if self.robot_name == 'so100' else right_x * self.scales['rotation']
+        # Rotation components
+        roll = right_x * self.scales['rotation']    # Roll from right stick
         pitch = (r1 - l1) * self.scales['tilt']     # Pitch from shoulder buttons
         yaw = (r2 - l2) * self.scales['rotation']   # Yaw from triggers
 
@@ -141,12 +166,16 @@ class GenericTeleoperation:
     def process_movement(self, twist_command):
         """
         @brief Process movement command using inverse kinematics
-        @param twist_command: Twist command for end-effector movement
+
+        @param twist_command: 6D twist command for end-effector movement
+
+        @note Applies low-pass filtering for smooth movement and handles IK convergence
         """
         # Apply low-pass filter for smooth movement
         alpha = 0.3  # Smoothing factor
         self.filtered_twist = (1 - alpha) * self.filtered_twist + alpha * twist_command
 
+        # Only process if significant movement command
         if np.linalg.norm(self.filtered_twist) > 0.01:
             try:
                 # Integrate twist to get target pose
@@ -167,14 +196,17 @@ class GenericTeleoperation:
 
     def process_gripper(self, a_button):
         """
-        @brief Process gripper control input
+        @brief Process gripper control input with toggle behavior
+
         @param a_button: Current state of A button
+
+        @note Toggles gripper state on button press with configurable positions
         """
         GRIPPER_OPEN_POS = self.scales['gripper_open_pos']
         GRIPPER_CLOSE_POS = self.scales['gripper_close_pos']
         GRIPPER_SPEED = self.scales['gripper_speed']
 
-        # Gripper toggle on A button press
+        # Toggle gripper on A button press (rising edge)
         if a_button and not self.last_a_state:
             if self.gripper_state == "open":
                 self.movement.move_gripper(GRIPPER_CLOSE_POS, GRIPPER_SPEED)
@@ -189,7 +221,12 @@ class GenericTeleoperation:
         self.movement.update_gripper()
 
     def run(self):
-        """@brief Main teleoperation loop"""
+        """
+        @brief Main teleoperation loop
+
+        @note Handles gamepad input, movement processing, and simulation stepping
+              Exits gracefully on START button or KeyboardInterrupt
+        """
         if not self.initialize_systems():
             return
 
@@ -226,7 +263,11 @@ class GenericTeleoperation:
             self.cleanup()
 
     def cleanup(self):
-        """@brief Clean up resources"""
+        """
+        @brief Clean up resources and shutdown systems
+
+        @note Closes viewer and quits pygame gracefully
+        """
         print("Cleaning up resources...")
         if self.sim and self.sim.show_viewer:
             self.sim.viewer.close()
@@ -235,8 +276,12 @@ class GenericTeleoperation:
 
 
 def main():
-    """@brief Main function to start teleoperation"""
-    # Choose between Panda and UR5 here
+    """
+    @brief Main function for direct execution of generic teleoperation
+
+    @note Can be used for testing without the launcher system
+    """
+    # Choose between Panda and UR5
     robot_name = 'panda'  # Options: 'panda', 'ur5'
 
     # Create and run teleoperation system

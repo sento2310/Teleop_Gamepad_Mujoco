@@ -1,0 +1,229 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>config &mdash; Gamepad Teleoperation Pipeline 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Gamepad Teleoperation Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Gamepad Teleoperation Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for config</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@file config.py</span>
+<span class="sd">@brief Centralized configuration manager for the teleoperation system</span>
+<span class="sd">@details Provides type-safe access to robot configurations with validation</span>
+<span class="sd">         and centralized management of all robot parameters.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Configuration">
+<a class="viewcode-back" href="../modules.html#config.Configuration">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Configuration</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    @brief Configuration manager for robotic arm teleoperation system</span>
+<span class="sd">    @details Provides centralized access to robot configurations with</span>
+<span class="sd">             validation and default value handling for all teleoperation modules.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Robot configurations</span>
+    <span class="n">ROBOT_CONFIGS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;panda&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Franka Emika Panda&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;xml_path&#39;</span><span class="p">:</span> <span class="s1">&#39;franka_emika_panda/panda.xml&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;end_effector_body&#39;</span><span class="p">:</span> <span class="s1">&#39;hand&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;arm_joint_count&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s1">&#39;axis_remap&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;vx&#39;</span><span class="p">:</span> <span class="s1">&#39;vx&#39;</span><span class="p">,</span> <span class="s1">&#39;vy&#39;</span><span class="p">:</span> <span class="s1">&#39;vy&#39;</span><span class="p">,</span> <span class="s1">&#39;vz&#39;</span><span class="p">:</span> <span class="s1">&#39;vz&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;roll&#39;</span><span class="p">:</span> <span class="s1">&#39;roll&#39;</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;yaw&#39;</span><span class="p">:</span> <span class="s1">&#39;yaw&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;movement_scales&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;translation&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;tilt&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="s1">&#39;gripper_open_pos&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;gripper_close_pos&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s1">&#39;gripper_speed&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;deadzone_threshold&#39;</span><span class="p">:</span> <span class="mf">0.1</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;ur5&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;UR5e with 2F-85 Gripper&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;xml_path&#39;</span><span class="p">:</span> <span class="s1">&#39;universal_robots_ur5e/ur5e_with_gripper.xml&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;end_effector_body&#39;</span><span class="p">:</span> <span class="s1">&#39;robotiq_base&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;arm_joint_count&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s1">&#39;axis_remap&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;vx&#39;</span><span class="p">:</span> <span class="s1">&#39;vx&#39;</span><span class="p">,</span> <span class="s1">&#39;vy&#39;</span><span class="p">:</span> <span class="s1">&#39;vy&#39;</span><span class="p">,</span> <span class="s1">&#39;vz&#39;</span><span class="p">:</span> <span class="s1">&#39;vz&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;roll&#39;</span><span class="p">:</span> <span class="s1">&#39;roll&#39;</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;yaw&#39;</span><span class="p">:</span> <span class="s1">&#39;yaw&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;movement_scales&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;translation&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;tilt&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+                <span class="s1">&#39;gripper_open_pos&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;gripper_close_pos&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s1">&#39;gripper_speed&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;deadzone_threshold&#39;</span><span class="p">:</span> <span class="mf">0.1</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;so100&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;SO100 Robotic Arm&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;xml_path&#39;</span><span class="p">:</span> <span class="s1">&#39;trs_so_arm100/so_arm100.xml&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;end_effector_body&#39;</span><span class="p">:</span> <span class="s1">&#39;Fixed_Jaw&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;arm_joint_count&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s1">&#39;axis_remap&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;vx&#39;</span><span class="p">:</span> <span class="s1">&#39;vy&#39;</span><span class="p">,</span> <span class="s1">&#39;vy&#39;</span><span class="p">:</span> <span class="s1">&#39;vz&#39;</span><span class="p">,</span> <span class="s1">&#39;vz&#39;</span><span class="p">:</span> <span class="s1">&#39;vx&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;roll&#39;</span><span class="p">:</span> <span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="s1">&#39;yaw&#39;</span><span class="p">,</span> <span class="s1">&#39;yaw&#39;</span><span class="p">:</span> <span class="s1">&#39;roll&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;movement_scales&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;translation&#39;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span> <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span> <span class="s1">&#39;tilt&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+                <span class="s1">&#39;gripper_open_pos&#39;</span><span class="p">:</span> <span class="mf">0.0123</span><span class="p">,</span> <span class="s1">&#39;gripper_close_pos&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s1">&#39;gripper_speed&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;deadzone_threshold&#39;</span><span class="p">:</span> <span class="mf">0.1</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;joint_multipliers&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span> <span class="s1">&#39;wrist_roll&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;wrist_pitch&#39;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+                <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;elbow&#39;</span><span class="p">:</span> <span class="mf">1.0</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="Configuration.get_robot_config">
+<a class="viewcode-back" href="../modules.html#config.Configuration.get_robot_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_robot_config</span><span class="p">(</span><span class="n">robot_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Retrieve configuration dictionary for specified robot</span>
+
+<span class="sd">        @param robot_name: Name of the robot configuration to retrieve</span>
+<span class="sd">        @return: Copy of the robot configuration dictionary</span>
+
+<span class="sd">        @throws ValueError: If robot_name is not found in ROBOT_CONFIGS</span>
+
+<span class="sd">        @note Returns a copy to prevent modification of original configuration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">robot_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">ROBOT_CONFIGS</span><span class="p">:</span>
+            <span class="n">available</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">ROBOT_CONFIGS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Robot &#39;</span><span class="si">{</span><span class="n">robot_name</span><span class="si">}</span><span class="s2">&#39; not found. Available: </span><span class="si">{</span><span class="n">available</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">ROBOT_CONFIGS</span><span class="p">[</span><span class="n">robot_name</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Configuration.get_movement_scales">
+<a class="viewcode-back" href="../modules.html#config.Configuration.get_movement_scales">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_movement_scales</span><span class="p">(</span><span class="n">robot_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Retrieve movement scaling parameters for specified robot</span>
+
+<span class="sd">        @param robot_name: Name of the robot</span>
+<span class="sd">        @return: Dictionary of movement scale parameters</span>
+
+<span class="sd">        @note Returns default values if movement_scales not defined for robot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">get_robot_config</span><span class="p">(</span><span class="n">robot_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;movement_scales&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;translation&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;tilt&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+            <span class="s1">&#39;gripper_open_pos&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;gripper_close_pos&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;gripper_speed&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;deadzone_threshold&#39;</span><span class="p">:</span> <span class="mf">0.1</span>
+        <span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="Configuration.get_joint_multipliers">
+<a class="viewcode-back" href="../modules.html#config.Configuration.get_joint_multipliers">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_joint_multipliers</span><span class="p">(</span><span class="n">robot_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Retrieve joint control multipliers for specified robot</span>
+
+<span class="sd">        @param robot_name: Name of the robot</span>
+<span class="sd">        @return: Dictionary of joint multiplier parameters</span>
+
+<span class="sd">        @note Returns default values (1.0) if joint_multipliers not defined</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">get_robot_config</span><span class="p">(</span><span class="n">robot_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;joint_multipliers&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;wrist_roll&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;wrist_pitch&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;elbow&#39;</span><span class="p">:</span> <span class="mf">1.0</span>
+        <span class="p">})</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Thomas Littmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

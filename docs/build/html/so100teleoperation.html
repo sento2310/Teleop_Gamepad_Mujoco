@@ -1,0 +1,261 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>so100teleoperation module &mdash; Gamepad Teleoperation Pipeline 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Gamepad Teleoperation Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Gamepad Teleoperation Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">so100teleoperation module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/so100teleoperation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-so100teleoperation">
+<span id="so100teleoperation-module"></span><h1>so100teleoperation module<a class="headerlink" href="#module-so100teleoperation" title="Link to this heading"></a></h1>
+<p>&#64;file so100teleoperation.py
+&#64;brief SO100-specific teleoperation with hybrid control scheme</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">so100teleoperation.</span></span><span class="sig-name descname"><span class="pre">SO100JointController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Joint-space controller for SO100-specific movements
+&#64;details Provides direct joint control for rotation, wrist_pitch, and wrist_roll</p>
+<blockquote>
+<div><p>with scaling and multiplier application from configuration.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize SO100 joint controller</p>
+<p>&#64;param sim: Simulation instance for accessing model and data</p>
+<p>&#64;note Builds joint mapping and loads configuration parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController.control_rotation_joint">
+<span class="sig-name descname"><span class="pre">control_rotation_joint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">left_stick_x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController.control_rotation_joint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController.control_rotation_joint" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Control base rotation joint</p>
+<p>&#64;param left_stick_x: Left stick horizontal input value</p>
+<p>&#64;note Applies movement scale and joint multiplier from configuration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController.control_wrist_pitch">
+<span class="sig-name descname"><span class="pre">control_wrist_pitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController.control_wrist_pitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController.control_wrist_pitch" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Control wrist pitch using shoulder buttons</p>
+<p>&#64;param l1: Left shoulder button state (0 or 1)
+&#64;param r1: Right shoulder button state (0 or 1)</p>
+<p>&#64;note Differential control: l1 decreases, r1 increases pitch</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100JointController.control_wrist_roll">
+<span class="sig-name descname"><span class="pre">control_wrist_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100JointController.control_wrist_roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100JointController.control_wrist_roll" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Control wrist roll using triggers</p>
+<p>&#64;param l2: Left trigger value (0.0 to 1.0)
+&#64;param r2: Right trigger value (0.0 to 1.0)</p>
+<p>&#64;note Differential control: l2 decreases, r2 increases roll</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">so100teleoperation.</span></span><span class="sig-name descname"><span class="pre">SO100Teleoperation</span></span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief SO100-specific teleoperation system with hybrid control
+&#64;details Implements hybrid control scheme using joint control for rotations</p>
+<blockquote>
+<div><p>and inverse kinematics for translations with conflict prevention.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize SO100 teleoperation system</p>
+<p>&#64;note Loads SO100-specific configuration and control parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.calculate_pure_translation">
+<span class="sig-name descname"><span class="pre">calculate_pure_translation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translation_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.calculate_pure_translation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.calculate_pure_translation" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Calculate target position using rotation joint as reference</p>
+<p>&#64;param current_pos: Current end-effector position
+&#64;param right_y: Right stick Y input (horizontal movement)
+&#64;param left_y: Left stick Y input (vertical movement)
+&#64;param translation_scale: Movement scaling factor
+&#64;param dt: Time step for integration</p>
+<p>&#64;return: Target position as 3D vector</p>
+<p>&#64;note Uses rotation joint position as reference for radial movement</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.cleanup" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Clean up resources and shutdown systems</p>
+<p>&#64;note Closes viewer and quits pygame gracefully</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.get_input_from_gamepad">
+<span class="sig-name descname"><span class="pre">get_input_from_gamepad</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.get_input_from_gamepad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.get_input_from_gamepad" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Get modified input structure for SO100 pure translational control</p>
+<p>&#64;return: Dictionary containing all gamepad input values</p>
+<p>&#64;note Applies deadzone filtering and returns structured input data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.get_rotation_joint_position">
+<span class="sig-name descname"><span class="pre">get_rotation_joint_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.get_rotation_joint_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.get_rotation_joint_position" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Get world position of rotation joint for movement reference</p>
+<p>&#64;return: Position of rotation joint as 3D vector</p>
+<p>&#64;note Attempts multiple methods to find rotation joint position</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.initialize_systems">
+<span class="sig-name descname"><span class="pre">initialize_systems</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.initialize_systems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.initialize_systems" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize all required systems for SO100 teleoperation</p>
+<p>&#64;return: True if all systems initialized successfully, False otherwise</p>
+<p>&#64;throws RuntimeError: If no gamepad detected</p>
+<p>&#64;note Sets up pygame, simulation, joint controller, and IK systems</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.process_gripper">
+<span class="sig-name descname"><span class="pre">process_gripper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_button</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.process_gripper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.process_gripper" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Process gripper control input with toggle behavior</p>
+<p>&#64;param a_button: Current state of A button</p>
+<p>&#64;note Toggles gripper state on button press with configurable positions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.process_joint_control">
+<span class="sig-name descname"><span class="pre">process_joint_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.process_joint_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.process_joint_control" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Process joint-space control for manual joints</p>
+<p>&#64;param input_data: Dictionary containing gamepad input values</p>
+<p>&#64;note Controls rotation, wrist_roll, and wrist_pitch joints directly</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.process_translation_control">
+<span class="sig-name descname"><span class="pre">process_translation_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.process_translation_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.process_translation_control" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Process translational control using IK with conflict prevention</p>
+<p>&#64;param input_data: Dictionary containing gamepad input values</p>
+<dl class="simple">
+<dt>&#64;note Skips translation when significant rotation input is detected</dt><dd><p>to prevent control conflicts between manual and IK control</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="so100teleoperation.SO100Teleoperation.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#SO100Teleoperation.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.SO100Teleoperation.run" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Main teleoperation loop for SO100</p>
+<dl class="simple">
+<dt>&#64;note Handles input processing, control execution, and simulation stepping</dt><dd><p>with comprehensive user feedback and error handling</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="so100teleoperation.main">
+<span class="sig-prename descclassname"><span class="pre">so100teleoperation.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/so100teleoperation.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#so100teleoperation.main" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Legacy main function for direct execution without launcher</p>
+<p>&#64;note Can be used for testing SO100 teleoperation independently</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Thomas Littmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

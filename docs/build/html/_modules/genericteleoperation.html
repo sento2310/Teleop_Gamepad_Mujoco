@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>genericteleoperation &mdash; Gamepad Teleoperation Pipeline 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Gamepad Teleoperation Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Gamepad Teleoperation Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">genericteleoperation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for genericteleoperation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@file genericteleoperation.py</span>
+<span class="sd">@brief Main teleoperation module for Panda and UR5 robots</span>
+<span class="sd">@details Handles gamepad input processing, IK solving, and simulation control</span>
+<span class="sd">         for 6DOF robotic arms using inverse kinematics.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pygame</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">generic_ik_solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericVelocityIKSolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">MovementHelper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>  <span class="c1"># Updated import</span>
+
+
+<div class="viewcode-block" id="GenericTeleoperation">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GenericTeleoperation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    @brief Teleoperation system for Panda and UR5 robotic arms</span>
+<span class="sd">    @details Provides complete 6DOF control using inverse kinematics</span>
+<span class="sd">             with smooth filtering and gripper control.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GenericTeleoperation.__init__">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot_name</span><span class="o">=</span><span class="s1">&#39;panda&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Initialize teleoperation system for specified robot</span>
+
+<span class="sd">        @param robot_name: Name of the robot (&#39;panda&#39; or &#39;ur5&#39;)</span>
+
+<span class="sd">        @note Default robot is &#39;panda&#39; if not specified</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_name</span> <span class="o">=</span> <span class="n">robot_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joystick</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movement</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ik_solver</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Control state for smooth operation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_twist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gripper_state</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_a_state</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Get robot-specific configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">get_robot_config</span><span class="p">(</span><span class="n">robot_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scales</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">get_movement_scales</span><span class="p">(</span><span class="n">robot_name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="GenericTeleoperation.initialize_systems">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation.initialize_systems">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_systems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Initialize all required systems for teleoperation</span>
+
+<span class="sd">        @return: True if all systems initialized successfully, False otherwise</span>
+
+<span class="sd">        @throws RuntimeError: If no gamepad detected</span>
+
+<span class="sd">        @note Initializes pygame, gamepad, simulation, and control systems</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initializing teleoperation for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">robot_name</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Initialize pygame and gamepad</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">pygame</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No gamepad detected!&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">joystick</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">Joystick</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gamepad connected: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Initialize simulation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">robot_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">robot_name</span><span class="p">,</span> <span class="n">show_viewer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Get end effector and initialize systems</span>
+        <span class="n">ee_body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_config</span><span class="p">[</span><span class="s1">&#39;end_effector_body&#39;</span><span class="p">]</span>
+        <span class="n">initial_pos</span><span class="p">,</span> <span class="n">initial_quat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">get_object_state</span><span class="p">(</span><span class="n">ee_body</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">movement</span> <span class="o">=</span> <span class="n">MovementHelper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="p">,</span> <span class="n">robot_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">robot_name</span><span class="p">,</span>
+                                      <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movement</span><span class="o">.</span><span class="n">set_initial_pose</span><span class="p">(</span><span class="n">initial_pos</span><span class="p">,</span> <span class="n">initial_quat</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ik_solver</span> <span class="o">=</span> <span class="n">GenericVelocityIKSolver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">ee_body</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">robot_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;arm_joint_count&#39;</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All systems initialized successfully&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="GenericTeleoperation.remap_twist">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation.remap_twist">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remap_twist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twist</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Apply robot-specific axis remapping to twist command</span>
+
+<span class="sd">        @param twist: Original twist command [vx, vy, vz, roll, pitch, yaw]</span>
+<span class="sd">        @return: Remapped twist command based on robot configuration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">remap_rules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;axis_remap&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">remap_rules</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">twist</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">,</span> <span class="n">roll</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">yaw</span> <span class="o">=</span> <span class="n">twist</span>
+
+        <span class="c1"># Available values for remapping</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;vx&#39;</span><span class="p">:</span> <span class="n">vx</span><span class="p">,</span> <span class="s1">&#39;vy&#39;</span><span class="p">:</span> <span class="n">vy</span><span class="p">,</span> <span class="s1">&#39;vz&#39;</span><span class="p">:</span> <span class="n">vz</span><span class="p">,</span> <span class="s1">&#39;roll&#39;</span><span class="p">:</span> <span class="n">roll</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span> <span class="s1">&#39;yaw&#39;</span><span class="p">:</span> <span class="n">yaw</span><span class="p">,</span>
+            <span class="s1">&#39;-vx&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">vx</span><span class="p">,</span> <span class="s1">&#39;-vy&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">vy</span><span class="p">,</span> <span class="s1">&#39;-vz&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">vz</span><span class="p">,</span> <span class="s1">&#39;-roll&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">roll</span><span class="p">,</span> <span class="s1">&#39;-pitch&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">pitch</span><span class="p">,</span> <span class="s1">&#39;-yaw&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">yaw</span><span class="p">,</span>
+            <span class="s1">&#39;0&#39;</span><span class="p">:</span> <span class="mf">0.0</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Apply remapping rules from configuration</span>
+        <span class="n">remapped_twist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remap_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vx&#39;</span><span class="p">,</span> <span class="s1">&#39;vx&#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remap_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vy&#39;</span><span class="p">,</span> <span class="s1">&#39;vy&#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remap_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vz&#39;</span><span class="p">,</span> <span class="s1">&#39;vz&#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remap_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;roll&#39;</span><span class="p">,</span> <span class="s1">&#39;roll&#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remap_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pitch&#39;</span><span class="p">,</span> <span class="s1">&#39;pitch&#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remap_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;yaw&#39;</span><span class="p">,</span> <span class="s1">&#39;yaw&#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">remapped_twist</span></div>
+
+
+<div class="viewcode-block" id="GenericTeleoperation.get_twist_from_gamepad">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation.get_twist_from_gamepad">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_twist_from_gamepad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Convert gamepad inputs to end-effector twist commands</span>
+
+<span class="sd">        @return: Tuple of (twist_command, start_button, a_button_state)</span>
+<span class="sd">                - twist_command: 6D twist vector [vx, vy, vz, roll, pitch, yaw]</span>
+<span class="sd">                - start_button: Boolean indicating START button state</span>
+<span class="sd">                - a_button_state: Boolean indicating A button state</span>
+
+<span class="sd">        @note Applies deadzone filtering and axis scaling from configuration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">DEADZONE_THRESHOLD</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;deadzone_threshold&#39;</span><span class="p">]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">deadzone</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Apply deadzone filtering to analog inputs&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">DEADZONE_THRESHOLD</span> <span class="k">else</span> <span class="n">value</span>
+
+        <span class="c1"># Joystick inputs with deadzone filtering</span>
+        <span class="n">left_x</span> <span class="o">=</span> <span class="n">deadzone</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">left_y</span> <span class="o">=</span> <span class="n">deadzone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">right_x</span> <span class="o">=</span> <span class="n">deadzone</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">right_y</span> <span class="o">=</span> <span class="n">deadzone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="c1"># Button states</span>
+        <span class="n">l1</span><span class="p">,</span> <span class="n">r1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_button</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_button</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">a_button</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_button</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_button</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Trigger inputs with deadzone</span>
+        <span class="n">l2_raw</span><span class="p">,</span> <span class="n">r2_raw</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">l2</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">l2_raw</span> <span class="o">&lt;</span> <span class="n">DEADZONE_THRESHOLD</span> <span class="k">else</span> <span class="n">l2_raw</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">r2_raw</span> <span class="o">&lt;</span> <span class="n">DEADZONE_THRESHOLD</span> <span class="k">else</span> <span class="n">r2_raw</span>
+
+        <span class="c1"># Calculate twist components with scaling</span>
+        <span class="n">vx</span> <span class="o">=</span> <span class="n">right_y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;translation&#39;</span><span class="p">]</span>   <span class="c1"># Forward/backward movement</span>
+        <span class="n">vy</span> <span class="o">=</span> <span class="n">left_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;translation&#39;</span><span class="p">]</span>    <span class="c1"># Left/right movement</span>
+        <span class="n">vz</span> <span class="o">=</span> <span class="n">left_y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;translation&#39;</span><span class="p">]</span>    <span class="c1"># Up/down movement</span>
+
+        <span class="c1"># Rotation components</span>
+        <span class="n">roll</span> <span class="o">=</span> <span class="n">right_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">]</span>    <span class="c1"># Roll from right stick</span>
+        <span class="n">pitch</span> <span class="o">=</span> <span class="p">(</span><span class="n">r1</span> <span class="o">-</span> <span class="n">l1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;tilt&#39;</span><span class="p">]</span>     <span class="c1"># Pitch from shoulder buttons</span>
+        <span class="n">yaw</span> <span class="o">=</span> <span class="p">(</span><span class="n">r2</span> <span class="o">-</span> <span class="n">l2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">]</span>   <span class="c1"># Yaw from triggers</span>
+
+        <span class="n">twist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">,</span> <span class="n">roll</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">yaw</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remap_twist</span><span class="p">(</span><span class="n">twist</span><span class="p">),</span> <span class="n">start</span><span class="p">,</span> <span class="n">a_button</span></div>
+
+
+<div class="viewcode-block" id="GenericTeleoperation.process_movement">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation.process_movement">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_movement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">twist_command</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Process movement command using inverse kinematics</span>
+
+<span class="sd">        @param twist_command: 6D twist command for end-effector movement</span>
+
+<span class="sd">        @note Applies low-pass filtering for smooth movement and handles IK convergence</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Apply low-pass filter for smooth movement</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.3</span>  <span class="c1"># Smoothing factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_twist</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">filtered_twist</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">twist_command</span>
+
+        <span class="c1"># Only process if significant movement command</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_twist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Integrate twist to get target pose</span>
+                <span class="n">target_pos</span><span class="p">,</span> <span class="n">target_quat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">movement</span><span class="o">.</span><span class="n">integrate_twist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_twist</span><span class="p">)</span>
+
+                <span class="c1"># Solve inverse kinematics for arm joints</span>
+                <span class="n">target_joint_pos</span><span class="p">,</span> <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ik_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">target_pos</span><span class="p">,</span> <span class="n">target_quat</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+                    <span class="c1"># Apply joint positions to simulation</span>
+                    <span class="n">n_arm_joints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_joint_pos</span><span class="p">)</span>
+                    <span class="n">actual_joints</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_arm_joints</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ctrl</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ctrl</span><span class="p">[:</span><span class="n">actual_joints</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_joint_pos</span><span class="p">[:</span><span class="n">actual_joints</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;IK solution failed to converge&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Movement/IK error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GenericTeleoperation.process_gripper">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation.process_gripper">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_gripper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_button</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Process gripper control input with toggle behavior</span>
+
+<span class="sd">        @param a_button: Current state of A button</span>
+
+<span class="sd">        @note Toggles gripper state on button press with configurable positions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">GRIPPER_OPEN_POS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;gripper_open_pos&#39;</span><span class="p">]</span>
+        <span class="n">GRIPPER_CLOSE_POS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;gripper_close_pos&#39;</span><span class="p">]</span>
+        <span class="n">GRIPPER_SPEED</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scales</span><span class="p">[</span><span class="s1">&#39;gripper_speed&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Toggle gripper on A button press (rising edge)</span>
+        <span class="k">if</span> <span class="n">a_button</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_a_state</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gripper_state</span> <span class="o">==</span> <span class="s2">&quot;open&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">movement</span><span class="o">.</span><span class="n">move_gripper</span><span class="p">(</span><span class="n">GRIPPER_CLOSE_POS</span><span class="p">,</span> <span class="n">GRIPPER_SPEED</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gripper_state</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gripper closing&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">movement</span><span class="o">.</span><span class="n">move_gripper</span><span class="p">(</span><span class="n">GRIPPER_OPEN_POS</span><span class="p">,</span> <span class="n">GRIPPER_SPEED</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gripper_state</span> <span class="o">=</span> <span class="s2">&quot;open&quot;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gripper opening&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_a_state</span> <span class="o">=</span> <span class="n">a_button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movement</span><span class="o">.</span><span class="n">update_gripper</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="GenericTeleoperation.run">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Main teleoperation loop</span>
+
+<span class="sd">        @note Handles gamepad input, movement processing, and simulation stepping</span>
+<span class="sd">              Exits gracefully on START button or KeyboardInterrupt</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_systems</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">robot_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> Teleoperation active. Press START to exit.&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+                <span class="c1"># Process pygame events</span>
+                <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="c1"># Get gamepad input</span>
+                <span class="n">twist</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">a_button</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_twist_from_gamepad</span><span class="p">()</span>
+
+                <span class="c1"># Exit on START button</span>
+                <span class="k">if</span> <span class="n">start</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exiting teleoperation...&quot;</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+                <span class="c1"># Process movement and gripper commands</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_movement</span><span class="p">(</span><span class="n">twist</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_gripper</span><span class="p">(</span><span class="n">a_button</span><span class="p">)</span>
+
+                <span class="c1"># Advance simulation</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Teleoperation interrupted by user&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in teleoperation loop: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="GenericTeleoperation.cleanup">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.GenericTeleoperation.cleanup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @brief Clean up resources and shutdown systems</span>
+
+<span class="sd">        @note Closes viewer and quits pygame gracefully</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cleaning up resources...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">show_viewer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Teleoperation ended.&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../modules.html#genericteleoperation.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    @brief Main function for direct execution of generic teleoperation</span>
+
+<span class="sd">    @note Can be used for testing without the launcher system</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Choose between Panda and UR5</span>
+    <span class="n">robot_name</span> <span class="o">=</span> <span class="s1">&#39;panda&#39;</span>  <span class="c1"># Options: &#39;panda&#39;, &#39;ur5&#39;</span>
+
+    <span class="c1"># Create and run teleoperation system</span>
+    <span class="n">teleop_system</span> <span class="o">=</span> <span class="n">GenericTeleoperation</span><span class="p">(</span><span class="n">robot_name</span><span class="p">)</span>
+    <span class="n">teleop_system</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Thomas Littmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

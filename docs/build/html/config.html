@@ -1,0 +1,157 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>config module &mdash; Gamepad Teleoperation Pipeline 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Gamepad Teleoperation Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Gamepad Teleoperation Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">config module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-config">
+<span id="config-module"></span><h1>config module<a class="headerlink" href="#module-config" title="Link to this heading"></a></h1>
+<p>&#64;file config.py
+&#64;brief Centralized configuration manager for the teleoperation system
+&#64;details Provides type-safe access to robot configurations with validation</p>
+<blockquote>
+<div><p>and centralized management of all robot parameters.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="config.Configuration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">config.</span></span><span class="sig-name descname"><span class="pre">Configuration</span></span><a class="reference internal" href="_modules/config.html#Configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#config.Configuration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Configuration manager for robotic arm teleoperation system
+&#64;details Provides centralized access to robot configurations with</p>
+<blockquote>
+<div><p>validation and default value handling for all teleoperation modules.</p>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="config.Configuration.ROBOT_CONFIGS">
+<span class="sig-name descname"><span class="pre">ROBOT_CONFIGS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'panda':</span> <span class="pre">{'arm_joint_count':</span> <span class="pre">7,</span> <span class="pre">'axis_remap':</span> <span class="pre">{'pitch':</span> <span class="pre">'pitch',</span> <span class="pre">'roll':</span> <span class="pre">'roll',</span> <span class="pre">'vx':</span> <span class="pre">'vx',</span> <span class="pre">'vy':</span> <span class="pre">'vy',</span> <span class="pre">'vz':</span> <span class="pre">'vz',</span> <span class="pre">'yaw':</span> <span class="pre">'yaw'},</span> <span class="pre">'end_effector_body':</span> <span class="pre">'hand',</span> <span class="pre">'movement_scales':</span> <span class="pre">{'deadzone_threshold':</span> <span class="pre">0.1,</span> <span class="pre">'gripper_close_pos':</span> <span class="pre">0.0,</span> <span class="pre">'gripper_open_pos':</span> <span class="pre">1.0,</span> <span class="pre">'gripper_speed':</span> <span class="pre">1,</span> <span class="pre">'rotation':</span> <span class="pre">0.5,</span> <span class="pre">'tilt':</span> <span class="pre">0.5,</span> <span class="pre">'translation':</span> <span class="pre">0.3},</span> <span class="pre">'name':</span> <span class="pre">'Franka</span> <span class="pre">Emika</span> <span class="pre">Panda',</span> <span class="pre">'xml_path':</span> <span class="pre">'franka_emika_panda/panda.xml'},</span> <span class="pre">'so100':</span> <span class="pre">{'arm_joint_count':</span> <span class="pre">5,</span> <span class="pre">'axis_remap':</span> <span class="pre">{'pitch':</span> <span class="pre">'yaw',</span> <span class="pre">'roll':</span> <span class="pre">'pitch',</span> <span class="pre">'vx':</span> <span class="pre">'vy',</span> <span class="pre">'vy':</span> <span class="pre">'vz',</span> <span class="pre">'vz':</span> <span class="pre">'vx',</span> <span class="pre">'yaw':</span> <span class="pre">'roll'},</span> <span class="pre">'end_effector_body':</span> <span class="pre">'Fixed_Jaw',</span> <span class="pre">'joint_multipliers':</span> <span class="pre">{'elbow':</span> <span class="pre">1.0,</span> <span class="pre">'pitch':</span> <span class="pre">1.0,</span> <span class="pre">'rotation':</span> <span class="pre">0.005,</span> <span class="pre">'wrist_pitch':</span> <span class="pre">0.02,</span> <span class="pre">'wrist_roll':</span> <span class="pre">0.01},</span> <span class="pre">'movement_scales':</span> <span class="pre">{'deadzone_threshold':</span> <span class="pre">0.1,</span> <span class="pre">'gripper_close_pos':</span> <span class="pre">0.0,</span> <span class="pre">'gripper_open_pos':</span> <span class="pre">0.0123,</span> <span class="pre">'gripper_speed':</span> <span class="pre">1,</span> <span class="pre">'rotation':</span> <span class="pre">0.4,</span> <span class="pre">'tilt':</span> <span class="pre">0.4,</span> <span class="pre">'translation':</span> <span class="pre">0.15},</span> <span class="pre">'name':</span> <span class="pre">'SO100</span> <span class="pre">Robotic</span> <span class="pre">Arm',</span> <span class="pre">'xml_path':</span> <span class="pre">'trs_so_arm100/so_arm100.xml'},</span> <span class="pre">'ur5':</span> <span class="pre">{'arm_joint_count':</span> <span class="pre">6,</span> <span class="pre">'axis_remap':</span> <span class="pre">{'pitch':</span> <span class="pre">'pitch',</span> <span class="pre">'roll':</span> <span class="pre">'roll',</span> <span class="pre">'vx':</span> <span class="pre">'vx',</span> <span class="pre">'vy':</span> <span class="pre">'vy',</span> <span class="pre">'vz':</span> <span class="pre">'vz',</span> <span class="pre">'yaw':</span> <span class="pre">'yaw'},</span> <span class="pre">'end_effector_body':</span> <span class="pre">'robotiq_base',</span> <span class="pre">'movement_scales':</span> <span class="pre">{'deadzone_threshold':</span> <span class="pre">0.1,</span> <span class="pre">'gripper_close_pos':</span> <span class="pre">0.0,</span> <span class="pre">'gripper_open_pos':</span> <span class="pre">1.0,</span> <span class="pre">'gripper_speed':</span> <span class="pre">1,</span> <span class="pre">'rotation':</span> <span class="pre">0.3,</span> <span class="pre">'tilt':</span> <span class="pre">0.3,</span> <span class="pre">'translation':</span> <span class="pre">0.2},</span> <span class="pre">'name':</span> <span class="pre">'UR5e</span> <span class="pre">with</span> <span class="pre">2F-85</span> <span class="pre">Gripper',</span> <span class="pre">'xml_path':</span> <span class="pre">'universal_robots_ur5e/ur5e_with_gripper.xml'}}</span></em><a class="headerlink" href="#config.Configuration.ROBOT_CONFIGS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="config.Configuration.get_joint_multipliers">
+<span class="sig-name descname"><span class="pre">get_joint_multipliers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#Configuration.get_joint_multipliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#config.Configuration.get_joint_multipliers" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Retrieve joint control multipliers for specified robot</p>
+<p>&#64;param robot_name: Name of the robot
+&#64;return: Dictionary of joint multiplier parameters</p>
+<p>&#64;note Returns default values (1.0) if joint_multipliers not defined</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="config.Configuration.get_movement_scales">
+<span class="sig-name descname"><span class="pre">get_movement_scales</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#Configuration.get_movement_scales"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#config.Configuration.get_movement_scales" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Retrieve movement scaling parameters for specified robot</p>
+<p>&#64;param robot_name: Name of the robot
+&#64;return: Dictionary of movement scale parameters</p>
+<p>&#64;note Returns default values if movement_scales not defined for robot</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="config.Configuration.get_robot_config">
+<span class="sig-name descname"><span class="pre">get_robot_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#Configuration.get_robot_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#config.Configuration.get_robot_config" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Retrieve configuration dictionary for specified robot</p>
+<p>&#64;param robot_name: Name of the robot configuration to retrieve
+&#64;return: Copy of the robot configuration dictionary</p>
+<p>&#64;throws ValueError: If robot_name is not found in ROBOT_CONFIGS</p>
+<p>&#64;note Returns a copy to prevent modification of original configuration</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Thomas Littmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gamepad_control module &mdash; Gamepad Teleoperation Pipeline 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Gamepad Teleoperation Pipeline
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Gamepad Teleoperation Pipeline</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">gamepad_control module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/gamepad_control.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-gamepad_control">
+<span id="gamepad-control-module"></span><h1>gamepad_control module<a class="headerlink" href="#module-gamepad_control" title="Link to this heading"></a></h1>
+<p>&#64;file gamepad_control.py
+&#64;brief Main launcher for robotic arm teleoperation system
+&#64;details Provides unified entry point with robot selection interface</p>
+<blockquote>
+<div><p>and system initialization for all supported robots.</p>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gamepad_control.</span></span><span class="sig-name descname"><span class="pre">GamepadControlLauncher</span></span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>&#64;brief Main launcher class for robotic arm teleoperation systems
+&#64;details Handles robot selection, system initialization, and provides</p>
+<blockquote>
+<div><p>command-line and interactive selection interfaces.</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.__init__" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize the gamepad control launcher with available robots</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.get_robot_info">
+<span class="sig-name descname"><span class="pre">get_robot_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.get_robot_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.get_robot_info" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Retrieve basic information about a specific robot</p>
+<p>&#64;param robot_name: Name of the robot to query
+&#64;return: Dictionary with robot info or None if robot not found</p>
+<p>&#64;note Returns None if robot configuration cannot be retrieved</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.initialize_teleop_system">
+<span class="sig-name descname"><span class="pre">initialize_teleop_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.initialize_teleop_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.initialize_teleop_system" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Initialize appropriate teleoperation system based on selected robot</p>
+<p>&#64;return: True if initialization successful, False otherwise</p>
+<p>&#64;throws ImportError: If required teleoperation module cannot be imported
+&#64;throws Exception: For general initialization failures</p>
+<p>&#64;note Uses SO100-specific system for SO100, generic for Panda/UR5</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.run" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Execute the selected teleoperation system</p>
+<p>&#64;note Handles KeyboardInterrupt and general exceptions gracefully</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gamepad_control.GamepadControlLauncher.select_robot">
+<span class="sig-name descname"><span class="pre">select_robot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">robot_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#GamepadControlLauncher.select_robot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.GamepadControlLauncher.select_robot" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Select and validate robot for teleoperation</p>
+<p>&#64;param robot_name: Name of the robot to control
+&#64;return: True if selection valid and robot available, False otherwise</p>
+<p>&#64;note Prints error message and available options if robot not found</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="gamepad_control.main">
+<span class="sig-prename descclassname"><span class="pre">gamepad_control.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gamepad_control.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gamepad_control.main" title="Link to this definition"></a></dt>
+<dd><p>&#64;brief Main entry point for gamepad control application</p>
+<dl class="simple">
+<dt>&#64;details Supports both command-line arguments and interactive selection</dt><dd><p>Displays available robots and usage instructions</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Thomas Littmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

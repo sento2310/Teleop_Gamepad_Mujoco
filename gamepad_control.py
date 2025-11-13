@@ -1,6 +1,8 @@
 """
-Gamepad Control Launcher for Robotic Arm Teleoperation.
-Provides a unified entry point for all robot control systems.
+@file gamepad_control.py
+@brief Main launcher for robotic arm teleoperation system
+@details Provides unified entry point with robot selection interface
+         and system initialization for all supported robots.
 """
 
 import sys
@@ -11,26 +13,30 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from genericteleoperation import GenericTeleoperation
 from so100teleoperation import SO100Teleoperation
-from config import get_robot_config
+from config import Configuration
 
 
 class GamepadControlLauncher:
     """
-    Main launcher class for robotic arm teleoperation systems.
-    Handles robot selection and system initialization.
+    @brief Main launcher class for robotic arm teleoperation systems
+    @details Handles robot selection, system initialization, and provides
+             command-line and interactive selection interfaces.
     """
 
     def __init__(self):
-        """@brief Initialize the gamepad control launcher"""
+        """@brief Initialize the gamepad control launcher with available robots"""
         self.available_robots = ['panda', 'ur5', 'so100']
         self.selected_robot = None
         self.teleop_system = None
 
     def select_robot(self, robot_name):
         """
-        @brief Select and validate the robot for teleoperation
+        @brief Select and validate robot for teleoperation
+
         @param robot_name: Name of the robot to control
-        @return: True if selection is valid, False otherwise
+        @return: True if selection valid and robot available, False otherwise
+
+        @note Prints error message and available options if robot not found
         """
         if robot_name not in self.available_robots:
             print(f"Error: Robot '{robot_name}' not available.")
@@ -38,14 +44,20 @@ class GamepadControlLauncher:
             return False
 
         self.selected_robot = robot_name
-        robot_config = get_robot_config(robot_name)
+        robot_config = Configuration.get_robot_config(robot_name)  # Updated
         print(f"Selected robot: {robot_config['name']}")
         return True
 
     def initialize_teleop_system(self):
         """
-        @brief Initialize the appropriate teleoperation system
+        @brief Initialize appropriate teleoperation system based on selected robot
+
         @return: True if initialization successful, False otherwise
+
+        @throws ImportError: If required teleoperation module cannot be imported
+        @throws Exception: For general initialization failures
+
+        @note Uses SO100-specific system for SO100, generic for Panda/UR5
         """
         if not self.selected_robot:
             print("Error: No robot selected. Please call select_robot() first.")
@@ -73,7 +85,11 @@ class GamepadControlLauncher:
             return False
 
     def run(self):
-        """@brief Run the selected teleoperation system"""
+        """
+        @brief Execute the selected teleoperation system
+
+        @note Handles KeyboardInterrupt and general exceptions gracefully
+        """
         if not self.teleop_system:
             print("Error: Teleoperation system not initialized.")
             return
@@ -94,12 +110,15 @@ class GamepadControlLauncher:
 
     def get_robot_info(self, robot_name):
         """
-        @brief Get information about a specific robot
-        @param robot_name: Name of the robot
-        @return: Robot configuration dictionary or None
+        @brief Retrieve basic information about a specific robot
+
+        @param robot_name: Name of the robot to query
+        @return: Dictionary with robot info or None if robot not found
+
+        @note Returns None if robot configuration cannot be retrieved
         """
         try:
-            config = get_robot_config(robot_name)
+            config = Configuration.get_robot_config(robot_name)  # Updated
             return {
                 'name': config['name'],
                 'description': f"{config['name']} with {config['arm_joint_count']} arm joints",
@@ -110,7 +129,12 @@ class GamepadControlLauncher:
 
 
 def main():
-    """@brief Main function - entry point for gamepad control"""
+    """
+    @brief Main entry point for gamepad control application
+
+    @details Supports both command-line arguments and interactive selection
+             Displays available robots and usage instructions
+    """
     launcher = GamepadControlLauncher()
 
     # Display available robots

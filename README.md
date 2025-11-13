@@ -196,7 +196,7 @@ Edit `config.py` and add your robot definition to `ROBOT_CONFIGS`:
 ```python
 'myrobot': {
     'name': 'My Custom Robot',
-    'xml_path': 'my_custom_robot/myrobot.xml',
+    'xml_path': 'my_custom_robot/myrobot.xml', #define robots xml path
     'end_effector_body': 'name', # define name of robots end effector body
     'arm_joint_count': n, #define number of arm joints, so kinematic chain can be built
     'axis_remap': {
@@ -222,7 +222,7 @@ In `simulation.py`, add a new entry inside the `configs` dictionary:
 
 ```python
 "myrobot": {
-    "world": "my_custom_robot/scene.xml",
+    "world": "my_custom_robot/scene.xml", #define xml path of the loaded scene
     "qpos": [...],   # Initial joint state (length = nq)
     "ctrl": [...],   # Initial actuator values (length = nu)
 }

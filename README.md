@@ -150,6 +150,118 @@ Teleop_Gamepad_Mujoco/
 
 ---
 
+
+## Adding a New Robot
+
+The framework is designed to be extendable, and adding support for a new robot follows a clear set of steps. This section describes how to integrate a new robot model, including configuration, file organization, and simulation setup.
+
+### 1. Create a robot folder with XMLs and assets
+Inside the main project directory (`Teleop_Gamepad_Mujoco`), create a new folder named after your robot, similar to:
+
+```
+franka_emika_panda/
+universal_robots_ur5e/
+trs_so_arm100/
+```
+
+For example:
+```
+my_custom_robot/
+```
+
+Inside this folder you should place:
+- The robot’s main XML model (`robot.xml`)
+- A scene XML that loads the robot (`scene.xml`)
+- A folder containing required assets (textures, meshes, URDF/MJCF includes, STL files, etc.)
+
+The structure might look like:
+
+```
+Teleop_Gamepad_Mujoco/
+└── my_custom_robot/
+    ├── myrobot.xml
+    ├── scene.xml
+    ├── assets/
+    │   ├── base.stl
+    │   ├── link1.stl
+    │   └── textures/
+    └── materials/
+```
+
+Your scene XML must reference the robot XML and any assets with relative paths.
+
+### 2. Add a configuration entry
+Edit `config.py` and add your robot definition to `ROBOT_CONFIGS`:
+
+```python
+'myrobot': {
+    'name': 'My Custom Robot',
+    'xml_path': 'my_custom_robot/myrobot.xml',
+    'end_effector_body': 'name', # define name of robots end effector body
+    'arm_joint_count': n, #define number of arm joints, so kinematic chain can be built
+    'axis_remap': {
+        'vx': 'vx', 'vy': 'vy', 'vz': 'vz',
+        'roll': 'roll', 'pitch': 'pitch', 'yaw': 'yaw'
+    },
+    'movement_scales': {
+        'translation': 0.2,
+        'rotation': 0.3,
+        'tilt': 0.3,
+        'gripper_open_pos': 1.0,
+        'gripper_close_pos': 0.0,
+        'gripper_speed': 1.0,
+        'deadzone_threshold': 0.1
+    }
+}
+```
+
+This tells the teleoperation system how to interpret commands for your robot.
+
+### 3. Register your robot in the simulation
+In `simulation.py`, add a new entry inside the `configs` dictionary:
+
+```python
+"myrobot": {
+    "world": "my_custom_robot/scene.xml",
+    "qpos": [...],   # Initial joint state (length = nq)
+    "ctrl": [...],   # Initial actuator values (length = nu)
+}
+```
+
+Make sure:
+- The `world` path points to your newly added `scene.xml`
+- `qpos` and `ctrl` arrays match your model’s joint and actuator counts
+
+### 4. Verify the end-effector name
+Ensure the value of `end_effector_body` in your config matches exactly the name in your MJCF model.
+
+To list all bodies in the model:
+
+```python
+[mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_BODY, i) for i in range(model.nbody)]
+```
+
+### 5. Check actuator naming for gripper detection
+`movement_helper.py` looks for actuator names containing common keywords:
+- finger
+- gripper
+- hand
+- Jaw (SO100-style)
+
+If your robot uses different naming conventions, either:
+- Rename actuators in your XMLs, or
+- Adjust the detection logic in `_find_gripper_controls()`
+
+### 6. Choose the teleoperation backend
+Most robots will work out of the box with `GenericTeleoperation`.
+
+If your robot has:
+- fewer than 6 controllable DOF  
+- extra joints  
+- non-standard
+
+
+
 ## Documentation
 
 Full API documentation and detailed module explanations can be found here:

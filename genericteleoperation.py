@@ -158,7 +158,7 @@ class GenericTeleoperation:
         # Rotation components
         roll = right_x * self.scales['rotation']    # Roll from right stick
         pitch = (r1 - l1) * self.scales['tilt']     # Pitch from shoulder buttons
-        yaw = (r2 - l2) * self.scales['rotation']   # Yaw from triggers
+        yaw = -(r2 - l2) * self.scales['rotation']   # Yaw from triggers
 
         twist = np.array([vx, vy, vz, roll, pitch, yaw])
         return self.remap_twist(twist), start, a_button

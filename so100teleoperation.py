@@ -2,7 +2,7 @@
 @file so100teleoperation.py
 @brief SO100-specific teleoperation with hybrid control scheme
 """
-
+import sys
 import pygame
 import numpy as np
 from simulation import Simulation
@@ -281,9 +281,10 @@ class SO100Teleoperation:
         try:
             while self.running:
                 # Process pygame events
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        self.running = False
+                if sys.platform != 'darwin':
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            self.running = False
 
                 # Get input data
                 input_data = self.get_input_from_gamepad()

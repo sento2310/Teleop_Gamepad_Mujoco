@@ -4,7 +4,7 @@
 @details Handles gamepad input processing, IK solving, and simulation control
          for 6DOF robotic arms using inverse kinematics.
 """
-
+import sys
 import pygame
 import numpy as np
 from simulation import Simulation
@@ -236,9 +236,10 @@ class GenericTeleoperation:
         try:
             while self.running:
                 # Process pygame events
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        self.running = False
+                if sys.platform != 'darwin':
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            self.running = False
 
                 # Get gamepad input
                 twist, start, a_button = self.get_twist_from_gamepad()

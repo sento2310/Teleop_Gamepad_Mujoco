@@ -151,11 +151,7 @@ class SO100Teleoperation:
         start = self.joystick.get_button(7) if self.layout == "xinput" else 0
         a_button = self.joystick.get_button(0)
 
-        # Debug print for Linux
-        if self.layout == "dinput":
-            print(f"[GAMEPAD][Linux DEBUG] Raw axes: Lx={left_x_raw:.4f} Ly={left_y_raw:.4f} Ry={right_y_raw:.4f}")
-            print(f"[GAMEPAD][Linux DEBUG] Adjusted axes: Lx={left_x:.4f} Ly={left_y:.4f} Ry={right_y:.4f}")
-            print(f"[GAMEPAD][Linux DEBUG] Triggers: L2={l2:.3f} R2={r2:.3f} | L1={l1} R1={r1} START={start} A={a_button}")
+
 
         return {
             'right_y': right_y,

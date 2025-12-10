@@ -74,28 +74,52 @@ pip install mujoco
 
 ## Running the Teleoperation System
 
-### Option 1 — Direct command
+### Windows
+
 Launch the teleoperation system for a specific robot:
 
 ```bash
 python gamepad_control.py panda
-```
-
-Other supported robots:
-
-```bash
 python gamepad_control.py ur5
 python gamepad_control.py so100
 ```
 
-### Option 2 — Interactive selection
-Run without arguments to choose a robot from a menu:
+Or run without arguments for an interactive menu:
 
 ```bash
 python gamepad_control.py
 ```
 
 A prompt will appear to select one of the available robots (Panda, UR5, or SO100).
+
+---
+
+### Linux
+
+On Linux, the standard teleoperation scripts may not correctly detect or calibrate DirectInput controllers. Use the Linux‑specific `_lin.py` scripts:
+
+**Direct launch for a specific robot:**
+
+```bash
+python genericteleoperation_lin.py panda
+python genericteleoperation_lin.py ur5
+python so100teleoperation_lin.py
+```
+
+**Interactive launcher (if available):**
+
+```bash
+python gamepad_control_lin.py
+```
+
+These scripts handle:
+
+- DInput axis‑center calibration  
+- XInput / DirectInput support  
+- Proper Linux gamepad detection  
+
+**Note:** Controls are nearly the same as in the standard scripts, but opening/closing gripper might be X-Buton when using Direct Input.
+
 
 
 ## Controls Overview
@@ -134,18 +158,24 @@ A prompt will appear to select one of the available robots (Panda, UR5, or SO100
 ```
 Teleop_Gamepad_Mujoco/
 │
-├── config.py                # Robot configuration manager
-├── gamepad_control.py       # Main launcher interface
-├── simulation.py            # MuJoCo simulation wrapper
+├── config.py                     # Robot configuration manager
+├── simulation.py                 # MuJoCo simulation wrapper
 │
-├── genericteleoperation.py  # Teleoperation system for Panda/UR5
-├── so100teleoperation.py    # Teleoperation system for SO100
+├── gamepad_control.py            # Main launcher (Windows/macOS)
+├── gamepad_control_lin.py        # Main launcher (Linux-specific gamepad handling)
 │
-├── generic_ik_solver.py     # Generic damped-least-squares IK solver
-├── so100_ik_solver.py       # SO100 position-only IK solver
+├── genericteleoperation.py       # Teleoperation for Panda/UR5 (Windows/macOS)
+├── genericteleoperation_lin.py   # Teleoperation for Panda/UR5 (Linux)
 │
-├── movement_helper.py       # Twist integration + gripper control
+├── so100teleoperation.py         # Teleoperation for SO100 (Windows/macOS)
+├── so100teleoperation_lin.py     # Teleoperation for SO100 (Linux)
+│
+├── generic_ik_solver.py          # Generic damped-least-squares IK solver
+├── so100_ik_solver.py            # SO100 position-only IK solver
+│
+├── movement_helper.py            # Twist integration + gripper control
 └── README.md
+
 ```
 
 ---

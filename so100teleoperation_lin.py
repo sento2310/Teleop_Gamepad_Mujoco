@@ -189,10 +189,14 @@ class SO100TeleoperationLin:
                         self.sim.data.ctrl[self.joint_controller.joint_map[joint_name]] = joint_value
 
     def calculate_pure_translation(self, current_pos, right_y, left_y, translation_scale, dt):
+        """
+        Calculate end-effector target position based on right stick Y and left stick Y.
+        Movement along right_y is relative to the robot rotation joint to maintain local forward/back.
+        """
         target_pos = np.array(current_pos, dtype=np.float64)
         rotation_joint_pos = self.get_rotation_joint_position()
 
-        # Horizontal movement relative to rotation joint
+        # Forward/backward relative to rotation joint
         if abs(right_y) > 0.01:
             horizontal_vec = np.array([current_pos[0] - rotation_joint_pos[0],
                                        current_pos[1] - rotation_joint_pos[1]])
@@ -329,3 +333,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

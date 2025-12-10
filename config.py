@@ -54,13 +54,13 @@ class Configuration:
                 'roll': 'pitch', 'pitch': 'yaw', 'yaw': 'roll'
             },
             'movement_scales': {
-                'translation': 0.15, 'rotation': 0.4, 'tilt': 0.4,
+                'translation': 0.10, 'rotation': 0.4, 'tilt': 0.4,
                 'gripper_open_pos': 0.0123, 'gripper_close_pos': 0.0,
                 'gripper_speed': 1, 'deadzone_threshold': 0.1
             },
             'joint_multipliers': {
-                'rotation': 0.003, 'wrist_roll': 0.01, 'wrist_pitch': 0.005,
-                'pitch': 1.0, 'elbow': 1.0
+                'rotation': 0.003, 'wrist_roll': 0.005, 'wrist_pitch': 0.003,
+                'pitch': 0.7, 'elbow': 0.7
             }
         }
     }

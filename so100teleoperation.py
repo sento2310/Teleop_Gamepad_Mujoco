@@ -1,6 +1,8 @@
 """
 @file so100teleoperation.py
 @brief SO100-specific teleoperation with hybrid control scheme supporting XInput and DirectInput
+@details Implements hybrid control using joint-space control for rotations/wrist and
+         inverse kinematics for translations with conflict prevention.
 """
 import sys
 import pygame
@@ -14,16 +16,15 @@ import mujoco
 
 class SO100Teleoperation:
     """
-    @brief SO100-specific teleoperation system with hybrid control
-    @details Implements hybrid control scheme using joint control for rotations
-             and inverse kinematics for translations with conflict prevention.
+    @brief SO100-specific teleoperation system with hybrid control.
+    @details Combines joint control for rotations and wrist with IK-based translations.
+             Supports XInput (Windows) and DirectInput (Linux) controllers.
     """
 
     def __init__(self):
         """
-        @brief Initialize SO100 teleoperation system
-
-        @note Loads SO100-specific configuration and control parameters
+        @brief Initialize SO100 teleoperation system.
+        @note Loads robot configuration, movement scales, and joint multipliers.
         """
         self.robot_name = 'so100'
         self.running = False
@@ -33,32 +34,30 @@ class SO100Teleoperation:
         self.movement = None
         self.ik_solver = None
 
-        # Control state management
+        # Control state
         self.gripper_state = "closed"
         self.last_a_state = False
-        self.layout = None  # Controller layout: 'xinput' or 'dinput'
+        self.layout = None
+        self.is_linux = False
+        self.axis_center = None
 
-        # Get robot-specific configuration
+        # Robot-specific configuration
         self.robot_config = Configuration.get_robot_config(self.robot_name)
         self.scales = Configuration.get_movement_scales(self.robot_name)
         self.joint_multipliers = Configuration.get_joint_multipliers(self.robot_name)
 
     def initialize_systems(self):
         """
-        @brief Initialize all required systems for SO100 teleoperation
-
-        @return: True if all systems initialized successfully, False otherwise
-
-        @throws RuntimeError: If no gamepad detected
-
-        @note Sets up pygame, simulation, joint controller, and IK systems
+        @brief Initialize all required systems for SO100 teleoperation.
+        @return True if all systems initialized successfully, False otherwise.
+        @throws RuntimeError if no gamepad is detected.
+        @note Sets up pygame, joystick, simulation, joint controller, IK, and movement helper.
         """
         print("Initializing SO100 teleoperation...")
 
         # Initialize pygame and joystick
         pygame.init()
         pygame.joystick.init()
-
         if pygame.joystick.get_count() == 0:
             raise RuntimeError("No gamepad detected!")
 
@@ -69,11 +68,17 @@ class SO100Teleoperation:
         # Detect controller layout
         axis_count = self.joystick.get_numaxes()
         if axis_count >= 6:
-            print("Detected XInput-style controller (Xbox layout)")
             self.layout = "xinput"
+            print("Detected XInput-style controller (Xbox layout)")
         else:
-            print("Detected DirectInput-style controller (Logitech D-mode)")
             self.layout = "dinput"
+            print("Detected DirectInput-style controller (Logitech D-mode)")
+
+        # Linux DInput calibration
+        self.is_linux = sys.platform.startswith('linux') and self.layout == 'dinput'
+        if self.is_linux:
+            self.axis_center = [self.joystick.get_axis(i) for i in range(4)]
+            print(f"Linux DInput axis centers calibrated: {self.axis_center}")
 
         # Initialize simulation
         self.sim = Simulation(robot_name=self.robot_name, show_viewer=True)
@@ -84,7 +89,6 @@ class SO100Teleoperation:
         # Initialize IK and movement systems
         ee_body = self.robot_config['end_effector_body']
         self.ik_solver = SO100IKSolver(self.sim.model, self.sim.data, ee_body, self.joint_controller)
-
         initial_pos, initial_quat = self.sim.get_object_state(ee_body)
         self.movement = MovementHelper(self.sim, robot_name=self.robot_name,
                                       dt=self.sim.model.opt.timestep)
@@ -95,39 +99,63 @@ class SO100Teleoperation:
 
     def get_input_from_gamepad(self):
         """
-        @brief Get structured input from gamepad for SO100 control
-
-        @return: Dictionary containing all gamepad input values
-
-        @note Applies deadzone filtering and differentiates between XInput and DirectInput layouts
+        @brief Read and normalize input from the gamepad.
+        @return Dictionary containing processed input values:
+                - left_x, left_y, right_y: stick positions
+                - l1, r1, l2, r2: button/trigger states
+                - start, a_button: special buttons
+        @note Applies deadzone filtering and Linux axis center calibration.
         """
         DEADZONE_THRESHOLD = self.scales['deadzone_threshold']
 
         def deadzone(value):
-            """Apply deadzone filtering to analog inputs"""
+            """Apply deadzone filtering to analog inputs."""
             return 0.0 if abs(value) < DEADZONE_THRESHOLD else value
 
-        # Get raw inputs with deadzone filtering
-        left_y = deadzone(self.joystick.get_axis(1))    # Left stick vertical
-        right_y = deadzone(self.joystick.get_axis(3))   # Right stick vertical
-        left_x = deadzone(self.joystick.get_axis(0))   # Left stick horizontal
-
-        l1, r1 = self.joystick.get_button(4), self.joystick.get_button(5)
-
-        # Triggers: handle differently for XInput vs DirectInput
+        # XInput controller mapping
         if self.layout == "xinput":
+            left_x = deadzone(-self.joystick.get_axis(0))
+            left_y = deadzone(self.joystick.get_axis(1))
+            right_y = deadzone(self.joystick.get_axis(3))
+            l1, r1 = self.joystick.get_button(4), self.joystick.get_button(5)
             l2_raw = (self.joystick.get_axis(4) + 1) / 2
             r2_raw = (self.joystick.get_axis(5) + 1) / 2
-        else:  # DirectInput: triggers are digital buttons
+
+        # DirectInput controller mapping (Linux)
+        else:
+            left_x_raw = self.joystick.get_axis(0)
+            left_y_raw = self.joystick.get_axis(1)
+            right_y_raw = self.joystick.get_axis(3)
+
+            # Apply axis center calibration
+            if self.is_linux and self.axis_center:
+                left_x = left_x_raw - self.axis_center[0]
+                left_y = left_y_raw - self.axis_center[1]
+                right_y = right_y_raw - self.axis_center[3]
+            else:
+                left_x = left_x_raw
+                left_y = left_y_raw
+                right_y = right_y_raw
+
+            left_x = deadzone(left_x)
+            left_y = deadzone(left_y)
+            right_y = deadzone(right_y)
+
+            l1, r1 = self.joystick.get_button(4), self.joystick.get_button(5)
             l2_raw = float(self.joystick.get_button(6))
             r2_raw = float(self.joystick.get_button(7))
 
         l2 = 0.0 if l2_raw < DEADZONE_THRESHOLD else l2_raw
         r2 = 0.0 if r2_raw < DEADZONE_THRESHOLD else r2_raw
 
-        # Start and A buttons
-        start = self.joystick.get_button(7)
+        start = self.joystick.get_button(7) if self.layout == "xinput" else 0
         a_button = self.joystick.get_button(0)
+
+        # Debug print for Linux
+        if self.layout == "dinput":
+            print(f"[GAMEPAD][Linux DEBUG] Raw axes: Lx={left_x_raw:.4f} Ly={left_y_raw:.4f} Ry={right_y_raw:.4f}")
+            print(f"[GAMEPAD][Linux DEBUG] Adjusted axes: Lx={left_x:.4f} Ly={left_y:.4f} Ry={right_y:.4f}")
+            print(f"[GAMEPAD][Linux DEBUG] Triggers: L2={l2:.3f} R2={r2:.3f} | L1={l1} R1={r1} START={start} A={a_button}")
 
         return {
             'right_y': right_y,
@@ -143,11 +171,8 @@ class SO100Teleoperation:
 
     def process_joint_control(self, input_data):
         """
-        @brief Process joint-space control for manual joints
-
-        @param input_data: Dictionary containing gamepad input values
-
-        @note Controls rotation, wrist_roll, and wrist_pitch joints directly
+        @brief Process joint-space control for manual joints.
+        @param input_data Dictionary from get_input_from_gamepad()
         """
         self.joint_controller.control_rotation_joint(input_data['left_x'])
         self.joint_controller.control_wrist_roll(input_data['l2'], input_data['r2'])
@@ -155,20 +180,15 @@ class SO100Teleoperation:
 
     def process_translation_control(self, input_data):
         """
-        @brief Process translational control using IK with conflict prevention
-
-        @param input_data: Dictionary containing gamepad input values
-
-        @note Skips translation when significant rotation input is detected
-              to prevent control conflicts between manual and IK control
+        @brief Process translational control using IK with conflict prevention.
+        @param input_data Dictionary from get_input_from_gamepad()
+        @note Skips translation when significant rotation input is detected.
         """
         if abs(input_data['left_x']) > 0.2:
             return
-
         if abs(input_data['right_y']) > 0.01 or abs(input_data['left_y']) > 0.01:
             ee_body = self.robot_config['end_effector_body']
-            current_pos, current_quat = self.sim.get_object_state(ee_body)
-
+            current_pos, _ = self.sim.get_object_state(ee_body)
             target_pos = self.calculate_pure_translation(
                 current_pos, input_data['right_y'], input_data['left_y'],
                 self.scales['translation'], self.sim.model.opt.timestep
@@ -189,15 +209,13 @@ class SO100Teleoperation:
 
     def calculate_pure_translation(self, current_pos, right_y, left_y, translation_scale, dt):
         """
-        @brief Calculate target position using rotation joint as reference
-
-        @param current_pos: Current end-effector position
-        @param right_y: Right stick Y input (horizontal movement)
-        @param left_y: Left stick Y input (vertical movement)
-        @param translation_scale: Movement scaling factor
-        @param dt: Time step for integration
-
-        @return: Target position as 3D vector
+        @brief Calculate target position using rotation joint as reference.
+        @param current_pos Current end-effector position.
+        @param right_y Right stick vertical input (horizontal movement).
+        @param left_y Left stick vertical input (vertical movement).
+        @param translation_scale Movement scaling factor.
+        @param dt Time step.
+        @return Target position as 3D numpy array.
         """
         target_pos = np.array(current_pos, dtype=np.float64)
         rotation_joint_pos = self.get_rotation_joint_position()
@@ -221,30 +239,25 @@ class SO100Teleoperation:
 
     def get_rotation_joint_position(self):
         """
-        @brief Get world position of rotation joint for movement reference
-
-        @return: Position of rotation joint as 3D vector
+        @brief Get world position of rotation joint for movement reference.
+        @return Position of rotation joint as 3D numpy array.
         """
         rotation_body_id = mujoco.mj_name2id(self.sim.model, mujoco.mjtObj.mjOBJ_BODY, "Rotation_Pitch")
         if rotation_body_id != -1:
             return self.sim.data.xpos[rotation_body_id].copy()
-
         rotation_joint_id = mujoco.mj_name2id(self.sim.model, mujoco.mjtObj.mjOBJ_JOINT, "Rotation")
         if rotation_joint_id != -1:
             body_id = self.sim.model.jnt_bodyid[rotation_joint_id]
             return self.sim.data.xpos[body_id].copy()
-
         base_body_id = mujoco.mj_name2id(self.sim.model, mujoco.mjtObj.mjOBJ_BODY, "Base")
         if base_body_id != -1:
             return self.sim.data.xpos[base_body_id].copy()
-
         return np.array([0.0, 0.0, 0.0])
 
     def process_gripper(self, a_button):
         """
-        @brief Process gripper control input with toggle behavior
-
-        @param a_button: Current state of A button
+        @brief Toggle gripper open/close based on A button.
+        @param a_button Current state of the A button.
         """
         GRIPPER_OPEN_POS = self.scales['gripper_open_pos']
         GRIPPER_CLOSE_POS = self.scales['gripper_close_pos']
@@ -261,13 +274,12 @@ class SO100Teleoperation:
 
     def run(self):
         """
-        @brief Main teleoperation loop for SO100
+        @brief Main teleoperation loop.
         """
         if not self.initialize_systems():
             return
 
         self.running = True
-
         if self.layout == "xinput":
             print("SO100 Teleoperation active. Press START to exit.")
 
@@ -279,7 +291,6 @@ class SO100Teleoperation:
                             self.running = False
 
                 input_data = self.get_input_from_gamepad()
-
                 if self.layout == "xinput" and input_data['start']:
                     print("Exiting teleoperation...")
                     break
@@ -299,7 +310,7 @@ class SO100Teleoperation:
 
     def cleanup(self):
         """
-        @brief Clean up resources and shutdown systems
+        @brief Clean up resources and shutdown systems.
         """
         print("Cleaning up resources...")
         if self.sim and self.sim.show_viewer:
@@ -310,7 +321,7 @@ class SO100Teleoperation:
 
 class SO100JointController:
     """
-    @brief Joint-space controller for SO100-specific movements
+    @brief Joint-space controller for SO100-specific movements.
     """
 
     def __init__(self, sim):
@@ -321,6 +332,10 @@ class SO100JointController:
         self.joint_map = self._build_joint_map()
 
     def _build_joint_map(self):
+        """
+        @brief Build mapping of joint names to simulation actuator indices.
+        @return Dictionary mapping joint names to actuator indices.
+        """
         joint_map = {}
         for i in range(self.sim.model.nu):
             name_id = self.sim.model.name_actuatoradr[i]
@@ -330,7 +345,6 @@ class SO100JointController:
                 name_bytes.append(self.sim.model.names[j])
                 j += 1
             act_name = name_bytes.decode('utf-8') if name_bytes else f"actuator_{i}"
-
             if 'Rotation' in act_name:
                 joint_map['rotation'] = i
             elif 'Pitch' in act_name and 'Wrist' not in act_name:
@@ -346,12 +360,21 @@ class SO100JointController:
         return joint_map
 
     def control_rotation_joint(self, left_stick_x):
+        """
+        @brief Control rotation joint based on left stick X input.
+        @param left_stick_x Horizontal stick input.
+        """
         if 'rotation' in self.joint_map:
             scale = self.movement_scales['rotation'] * self.joint_multipliers['rotation']
             current = self.sim.data.ctrl[self.joint_map['rotation']]
             self.sim.data.ctrl[self.joint_map['rotation']] = current - left_stick_x * scale
 
     def control_wrist_roll(self, l2, r2):
+        """
+        @brief Control wrist roll using triggers L2 and R2.
+        @param l2 L2 trigger value.
+        @param r2 R2 trigger value.
+        """
         if 'wrist_roll' in self.joint_map:
             roll_scale = self.movement_scales['rotation'] * self.joint_multipliers['wrist_roll']
             current = self.sim.data.ctrl[self.joint_map['wrist_roll']]
@@ -359,6 +382,11 @@ class SO100JointController:
             self.sim.data.ctrl[self.joint_map['wrist_roll']] = current + delta
 
     def control_wrist_pitch(self, l1, r1):
+        """
+        @brief Control wrist pitch using buttons L1 and R1.
+        @param l1 L1 button state.
+        @param r1 R1 button state.
+        """
         if 'wrist_pitch' in self.joint_map:
             pitch_scale = self.movement_scales['tilt'] * self.joint_multipliers['wrist_pitch']
             current = self.sim.data.ctrl[self.joint_map['wrist_pitch']]
@@ -368,7 +396,7 @@ class SO100JointController:
 
 def main():
     """
-    @brief Legacy main function for direct execution without launcher
+    @brief Entry point for direct script execution.
     """
     teleop_system = SO100Teleoperation()
     teleop_system.run()

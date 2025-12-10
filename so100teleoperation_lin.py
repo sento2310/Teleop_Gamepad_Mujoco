@@ -313,7 +313,7 @@ class SO100JointController:
 
     def control_wrist_roll(self, l2, r2):
         if 'wrist_roll' in self.joint_map:
-            scale = self.movement_scales['rotation'] * self.joint_multipliers['wrist_roll']
+            scale = -self.movement_scales['rotation'] * self.joint_multipliers['wrist_roll']
             current = self.sim.data.ctrl[self.joint_map['wrist_roll']]
             delta = (l2 - r2) * scale
             self.sim.data.ctrl[self.joint_map['wrist_roll']] = current + delta

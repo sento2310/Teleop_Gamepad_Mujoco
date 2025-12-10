@@ -372,7 +372,7 @@ class SO100JointController:
         @param r2 R2 trigger value.
         """
         if 'wrist_roll' in self.joint_map:
-            roll_scale = self.movement_scales['rotation'] * self.joint_multipliers['wrist_roll']
+            roll_scale = -self.movement_scales['rotation'] * self.joint_multipliers['wrist_roll']
             current = self.sim.data.ctrl[self.joint_map['wrist_roll']]
             delta = (l2 - r2) * roll_scale
             self.sim.data.ctrl[self.joint_map['wrist_roll']] = current + delta

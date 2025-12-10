@@ -59,7 +59,7 @@ class Configuration:
                 'gripper_speed': 1, 'deadzone_threshold': 0.1
             },
             'joint_multipliers': {
-                'rotation': 0.005, 'wrist_roll': 0.01, 'wrist_pitch': 0.02,
+                'rotation': 0.003, 'wrist_roll': 0.01, 'wrist_pitch': 0.005,
                 'pitch': 1.0, 'elbow': 1.0
             }
         }

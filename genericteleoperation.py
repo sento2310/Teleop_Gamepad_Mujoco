@@ -67,6 +67,8 @@ class GenericTeleoperation:
         self.joystick = pygame.joystick.Joystick(0)
         self.joystick.init()
         print(f"Gamepad connected: {self.joystick.get_name()}")
+        self.layout = self.detect_gamepad_layout()
+
 
         # Initialize simulation
         self.sim = Simulation(robot_name=self.robot_name, show_viewer=True)
@@ -84,6 +86,23 @@ class GenericTeleoperation:
 
         print("All systems initialized successfully")
         return True
+
+    def detect_gamepad_layout(self):
+        axis_count = self.joystick.get_numaxes()
+
+        # Typical XInput layout (Xbox controllers)
+        if axis_count >= 6:
+            print("Detected XInput-style controller")
+            return "xinput"
+
+        # Typical DirectInput layout (Logitech F310 D-mode)
+        elif axis_count == 4:
+            print("Detected DirectInput-style controller")
+            return "dinput"
+
+        else:
+            raise RuntimeError(f"Unknown controller axis count: {axis_count}")
+
 
     def remap_twist(self, twist):
         """
@@ -132,36 +151,81 @@ class GenericTeleoperation:
         DEADZONE_THRESHOLD = self.scales['deadzone_threshold']
 
         def deadzone(value):
-            """Apply deadzone filtering to analog inputs"""
             return 0.0 if abs(value) < DEADZONE_THRESHOLD else value
 
-        # Joystick inputs with deadzone filtering
-        left_x = deadzone(-self.joystick.get_axis(0))
-        left_y = deadzone(self.joystick.get_axis(1))
-        right_x = deadzone(-self.joystick.get_axis(2))
-        right_y = deadzone(self.joystick.get_axis(3))
+        # Detect layout (once)
+        if not hasattr(self, "layout"):
+            axis_count = self.joystick.get_numaxes()
+            if axis_count >= 6:
+                print("Detected XInput-style controller (Xbox layout)")
+                self.layout = "xinput"
+            else:
+                print("Detected DirectInput-style controller (Logitech D-mode)")
+                self.layout = "dinput"
 
-        # Button states
-        l1, r1 = self.joystick.get_button(4), self.joystick.get_button(5)
-        start, a_button = self.joystick.get_button(7), self.joystick.get_button(0)
+        # -------------------------------------------------------
+        #      AXIS MAPPING — XINPUT (X mode)
+        # -------------------------------------------------------
+        if self.layout == "xinput":
+            # Sticks
+            left_x = deadzone(-self.joystick.get_axis(0))
+            left_y = deadzone(self.joystick.get_axis(1))
+            right_x = deadzone(-self.joystick.get_axis(2))
+            right_y = deadzone(self.joystick.get_axis(3))
 
-        # Trigger inputs with deadzone
-        l2_raw, r2_raw = (self.joystick.get_axis(4) + 1) / 2, (self.joystick.get_axis(5) + 1) / 2
+            # Triggers are analog axes (range: -1 … +1)
+            l2_raw = (self.joystick.get_axis(4) + 1) / 2
+            r2_raw = (self.joystick.get_axis(5) + 1) / 2
+
+        # -------------------------------------------------------
+        #      AXIS MAPPING — DIRECTINPUT (D mode)
+        # -------------------------------------------------------
+        else:  # self.layout == "dinput"
+            # F310 D-mode always has 4 axes: 0,1,2,3
+            left_x = deadzone(-self.joystick.get_axis(0))
+            left_y = deadzone(self.joystick.get_axis(1))
+            right_x = deadzone(-self.joystick.get_axis(2))
+            right_y = deadzone(self.joystick.get_axis(3))
+
+            # Triggers become DIGITAL BUTTONS in DirectInput
+            # Logitech F310 D-mode trigger buttons = 6, 7
+            l2_raw = float(self.joystick.get_button(6))
+            r2_raw = float(self.joystick.get_button(7))
+
+        # After deadzone
         l2 = 0.0 if l2_raw < DEADZONE_THRESHOLD else l2_raw
         r2 = 0.0 if r2_raw < DEADZONE_THRESHOLD else r2_raw
 
-        # Calculate twist components with scaling
-        vx = right_y * self.scales['translation']   # Forward/backward movement
-        vy = left_x * self.scales['translation']    # Left/right movement
-        vz = left_y * self.scales['translation']    # Up/down movement
+        # -------------------------------------------------------
+        # Buttons (same for both modes)
+        # -------------------------------------------------------
+        l1 = self.joystick.get_button(4)
+        r1 = self.joystick.get_button(5)
+        start = self.joystick.get_button(7)
+        a_button = self.joystick.get_button(0)
 
-        # Rotation components
-        roll = right_x * self.scales['rotation']    # Roll from right stick
-        pitch = (r1 - l1) * self.scales['tilt']     # Pitch from shoulder buttons
-        yaw = -(r2 - l2) * self.scales['rotation']   # Yaw from triggers
+        # -------------------------------------------------------
+        # Compute twist
+        # -------------------------------------------------------
+        vx = right_y * self.scales['translation']
+        vy = left_x * self.scales['translation']
+        vz = left_y * self.scales['translation']
+
+        roll = right_x * self.scales['rotation']
+        pitch = (r1 - l1) * self.scales['tilt']
+        yaw = -(r2 - l2) * self.scales['rotation']
 
         twist = np.array([vx, vy, vz, roll, pitch, yaw])
+
+        # Debug print
+        print(f"[GAMEPAD] vx:{vx:.3f} vy:{vy:.3f} vz:{vz:.3f} | "
+              f"roll:{roll:.3f} pitch:{pitch:.3f} yaw:{yaw:.3f} | "
+              f"START:{start} A:{a_button}")
+
         return self.remap_twist(twist), start, a_button
+
+
+
 
     def process_movement(self, twist_command):
         """
@@ -231,7 +295,8 @@ class GenericTeleoperation:
             return
 
         self.running = True
-        print(f"{self.robot_name.upper()} Teleoperation active. Press START to exit.")
+        if self.layout == "xinput":
+            print(f"{self.robot_name.upper()} Teleoperation active. Press START to exit.")
 
         try:
             while self.running:
@@ -245,7 +310,7 @@ class GenericTeleoperation:
                 twist, start, a_button = self.get_twist_from_gamepad()
 
                 # Exit on START button
-                if start:
+                if self.layout == "xinput" and start:
                     print("Exiting teleoperation...")
                     break
 

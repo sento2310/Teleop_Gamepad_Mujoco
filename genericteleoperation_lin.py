@@ -189,17 +189,8 @@ class GenericTeleoperationLin:
 
         twist = np.array([vx, vy, vz, roll, pitch, yaw])
 
-        # -----------------------------
-        # Debug
-        # -----------------------------
-        print(f"[DEBUG] Raw axes: Lx={left_x_raw:.3f} Ly={left_y_raw:.3f} "
-              f"Rx={right_x_raw:.3f} Ry={right_y_raw:.3f}")
-        print(f"[DEBUG] Adjusted axes: Lx={left_x:.3f} Ly={left_y:.3f} "
-              f"Rx={right_x:.3f} Ry={right_y:.3f}")
-        print(f"[DEBUG] Triggers: L2={l2:.3f} R2={r2:.3f} | "
-              f"L1={l1} R1={r1} START={start} A={a_button}")
 
-        return self.remap_twist(twist), start, a_button
+        return self.remap_twist(twist), a_button
 
     def process_movement(self, twist_command):
         alpha = 0.3
@@ -240,8 +231,6 @@ class GenericTeleoperationLin:
             return
 
         self.running = True
-        if self.layout == "xinput":
-            print(f"{self.robot_name.upper()} Teleoperation active. Press START to exit.")
 
         try:
             while self.running:
@@ -250,11 +239,7 @@ class GenericTeleoperationLin:
                         if event.type == pygame.QUIT:
                             self.running = False
 
-                twist, start, a_button = self.get_twist_from_gamepad()
-
-                if start:
-                    print("Exiting teleoperation...")
-                    break
+                twist, a_button = self.get_twist_from_gamepad()
 
                 self.process_movement(twist)
                 self.process_gripper(a_button)

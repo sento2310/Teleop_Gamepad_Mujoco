@@ -148,7 +148,7 @@ class SO100Teleoperation:
         l2 = 0.0 if l2_raw < DEADZONE_THRESHOLD else l2_raw
         r2 = 0.0 if r2_raw < DEADZONE_THRESHOLD else r2_raw
 
-        start = self.joystick.get_button(7) if self.layout == "xinput" else 0
+        #start = self.joystick.get_button(7) if self.layout == "xinput" else 0
         a_button = self.joystick.get_button(0)
 
 
@@ -161,7 +161,6 @@ class SO100Teleoperation:
             'r1': r1,
             'l2': l2,
             'r2': r2,
-            'start': start,
             'a_button': a_button
         }
 
@@ -276,8 +275,7 @@ class SO100Teleoperation:
             return
 
         self.running = True
-        if self.layout == "xinput":
-            print("SO100 Teleoperation active. Press START to exit.")
+
 
         try:
             while self.running:
@@ -287,9 +285,6 @@ class SO100Teleoperation:
                             self.running = False
 
                 input_data = self.get_input_from_gamepad()
-                if self.layout == "xinput" and input_data['start']:
-                    print("Exiting teleoperation...")
-                    break
 
                 self.process_joint_control(input_data)
                 self.process_translation_control(input_data)

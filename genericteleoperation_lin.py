@@ -174,7 +174,7 @@ class GenericTeleoperationLin:
         # -----------------------------
         l1 = self.joystick.get_button(4)
         r1 = self.joystick.get_button(5)
-        start = self.joystick.get_button(7) if self.layout == "xinput" else 0
+        #start = self.joystick.get_button(7) if self.layout == "xinput" else 0
         a_button = self.joystick.get_button(0)
 
         # -----------------------------
